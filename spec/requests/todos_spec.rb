@@ -1,5 +1,6 @@
 require 'rails_helper'
 
+
 RSpec.describe "Todos", type: :request do
   describe "GET /index" do
     let(:params) do
@@ -26,7 +27,7 @@ RSpec.describe "Todos", type: :request do
     end
   end
 
-  describe "POST /todo" do
+  describe "POST /create" do
     context "with valid parameters" do
       let(:params) do
         {
@@ -77,5 +78,32 @@ RSpec.describe "Todos", type: :request do
       end
     end
 
+  end
+
+  describe "PUT /update" do
+    let(:params) do
+      {
+        todo: {
+          content: "testeeeed",
+          completed: true
+        }
+      }
+    end
+
+    def todo
+      todo = Todo.create(content: "test", completed: false)
+    end
+
+    it "returns status 200" do
+      put "/todos/#{todo.id}", params: params
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "doesn't find id and returns 404" do
+      put "/todos/#{rand(12032)}", params: params
+
+      expect(response).to have_http_status(404)
+    end
   end
 end
