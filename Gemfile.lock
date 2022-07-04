@@ -111,6 +111,7 @@ GEM
     nio4r (2.5.8)
     nokogiri (1.13.6-x86_64-linux)
       racc (~> 1.4)
+    pg (1.4.1)
     puma (5.6.4)
       nio4r (~> 2.0)
     racc (1.6.0)
@@ -180,6 +181,7 @@ PLATFORMS
 DEPENDENCIES
   bootsnap
   debug
+  pg
   puma (~> 5.0)
   rails (~> 7.0.3)
   rspec-rails
