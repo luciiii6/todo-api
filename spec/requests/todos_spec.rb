@@ -2,7 +2,28 @@ require 'rails_helper'
 
 RSpec.describe "Todos", type: :request do
   describe "GET /index" do
-    pending "add some examples (or delete) #{__FILE__}"
+    let(:params) do
+      {
+        todo: {
+          content: "test"
+        }
+      }
+    end
+
+    before(:each) do
+      post todos_path, params: params
+    end
+
+    it "returns status 200" do
+      get todos_path
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "returns one or more todos" do
+      post todos_path, params: params
+      get todos_path
+      expect(JSON.parse(response.body,:symbolize_names=>true)[:todos].length).to eq 2
+    end
   end
 
   describe "POST /todo" do
