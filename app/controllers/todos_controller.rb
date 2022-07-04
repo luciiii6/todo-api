@@ -6,6 +6,12 @@ class TodosController < ApplicationController
     render json: { error: "Content missing" }, status: 400
   end
 
+  def index
+    todos = Todo.all
+
+    render json: {todos: todos}, status: :ok
+  end
+
   private
 
   def todo_params
