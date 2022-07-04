@@ -1,11 +1,13 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
-RSpec.describe "Todos", type: :request do
-  describe "GET /index" do
+RSpec.describe 'Todos', type: :request do
+  describe 'GET /index' do
     let(:params) do
       {
         todo: {
-          content: "test"
+          content: 'test'
         }
       }
     end
@@ -14,36 +16,36 @@ RSpec.describe "Todos", type: :request do
       post todos_path, params: params
     end
 
-    it "returns status 200" do
+    it 'returns status 200' do
       get todos_path
       expect(response).to have_http_status(:ok)
     end
 
-    it "returns one or more todos" do
+    it 'returns one or more todos' do
       post todos_path, params: params
       get todos_path
-      expect(JSON.parse(response.body,:symbolize_names=>true)[:todos].length).to eq 2
+      expect(JSON.parse(response.body, symbolize_names: true)[:todos].length).to eq 2
     end
   end
 
-  describe "POST /todo" do
-    context "with valid parameters" do
+  describe 'POST /create' do
+    context 'with valid parameters' do
       let(:params) do
         {
           todo: {
-            content: "test"
+            content: 'test'
           }
         }
       end
 
-      it "it responds 201" do
+      it 'it responds 201' do
         post todos_path, params: params
 
         expect(response).to have_http_status(:created)
       end
     end
 
-    context "with missing content" do
+    context 'with missing content' do
       let(:params) do
         {
           todo: {
@@ -51,31 +53,70 @@ RSpec.describe "Todos", type: :request do
         }
       end
 
-      it "responds with 400" do
+      it 'responds with 400' do
         post todos_path, params: params
         expect(response).to have_http_status(400)
       end
 
-      it "responds with Content missing" do
+      it 'responds with Content missing' do
         post todos_path, params: params
-        expect(JSON.parse(response.body, :symbolize_names => true)[:error]).to eq "Content missing"
+        expect(JSON.parse(response.body, symbolize_names: true)[:error]).to eq 'Content missing'
+      end
+
+      it 'it responds 400 from an empty body' do
+        params = {}
+        post todos_path, params: params
+
+        expect(response).to have_http_status(400)
       end
     end
 
-    context "with null content" do
+    context 'with null content' do
       let(:params) do
         {
           todo: {
-            content: ""
+            content: ''
           }
         }
       end
 
-      it "responds with 400" do
+      it 'responds with 400' do
         post todos_path, params: params
         expect(response).to have_http_status(400)
       end
     end
+  end
 
+  describe 'PUT /update' do
+    let(:params) do
+      {
+        todo: {
+          content: 'testeeeed',
+          completed: true
+        }
+      }
+    end
+
+    def todo
+      Todo.create(content: 'test', completed: false)
+    end
+
+    it 'returns status 200' do
+      put "/todos/#{todo.id}", params: params
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "doesn't find id and returns 404" do
+      put "/todos/#{rand(12_032)}", params: params
+
+      expect(response).to have_http_status(404)
+    end
+
+    it 'it responds 400 from an empty body' do
+      params[:todo][:completed] = 213_124_215
+      put "/todos/#{todo.id}", params: params
+
+      expect(response).to have_http_status(400)
+    end
   end
 end
