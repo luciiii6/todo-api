@@ -77,6 +77,8 @@ GEM
     diff-lcs (1.5.0)
     digest (3.1.0)
     erubi (1.10.0)
+    faker (2.21.0)
+      i18n (>= 1.8.11, < 2)
     globalid (1.0.0)
       activesupport (>= 5.0)
     i18n (1.10.0)
@@ -181,6 +183,7 @@ PLATFORMS
 DEPENDENCIES
   bootsnap
   debug
+  faker
   pg
   puma (~> 5.0)
   rails (~> 7.0.3)
