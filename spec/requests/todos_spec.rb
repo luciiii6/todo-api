@@ -45,6 +45,10 @@ RSpec.describe 'Todos', type: :request do
         post_todos
         expect(response).to have_http_status(:created)
       end
+
+      it 'increases the count of records by 1' do
+        expect { post_todos }.to change { Todo.count }.by(1)
+      end
     end
 
     context 'request with missing content' do
@@ -152,7 +156,6 @@ RSpec.describe 'Todos', type: :request do
         expect(response).to have_http_status(400)
       end
     end
-
   end
 
   describe 'DELETE /destroy' do
