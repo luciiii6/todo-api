@@ -27,6 +27,15 @@ class TodosController < ApplicationController
     render json: { error: 'Todo not found' }, status: 400
   end
 
+  def destroy
+    todo = Todo.find_by!(id: params[:id])
+    todo.destroy
+
+    render action: 'index', status: :ok
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: 'Todo not found' }, status: 404
+  end
+
   private
 
   def todo_params

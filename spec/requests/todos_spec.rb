@@ -119,4 +119,23 @@ RSpec.describe 'Todos', type: :request do
       expect(response).to have_http_status(400)
     end
   end
+
+  describe 'DELETE /destroy' do
+
+    def todo
+      Todo.create(content: 'test', completed: false)
+    end
+
+    it 'returns status 200' do
+      delete "/todos/#{todo.id}"
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "doesn't find id and returns 404" do
+      delete "/todos/#{rand(12_032)}"
+
+      expect(response).to have_http_status(404)
+    end
+  end
+
 end
