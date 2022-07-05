@@ -3,7 +3,10 @@ name: CI
 on:
   push:
     branches:
-      - '9-add-ci-to-project'
+      - 'main'
+  pull_request:
+    branches:
+      - 'main'
 jobs:
   validate:
     runs-on: ubuntu-latest
