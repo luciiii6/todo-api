@@ -147,7 +147,7 @@ RSpec.describe 'Todos', type: :request do
         {
           todo: {
             content: 'testeeeed',
-            completed: 1232142512
+            completed: 1_232_142_512
           }
         }
       end
@@ -172,7 +172,7 @@ RSpec.describe 'Todos', type: :request do
     context 'request with non existent id' do
       let(:todo) do
         todo = Todo.create(content: 'test', completed: false)
-        todo.id = rand(12_032213213)
+        todo.id = rand(12_032_213_213)
         todo
       end
       it 'responds with status code 404' do
@@ -183,7 +183,7 @@ RSpec.describe 'Todos', type: :request do
   end
 
   describe 'DELETE /destroy_all' do
-    subject(:delete_todos) { delete '/todos'}
+    subject(:delete_todos) { delete '/todos' }
     before(:each) do
       3.times { Todo.create(content: 'test', completed: false) }
     end
