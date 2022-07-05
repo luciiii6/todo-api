@@ -7,4 +7,5 @@ Rails.application.routes.draw do
   # root "articles#index"
 
   resources :todos
+  match 'todos', to: 'todos#destroy_all', via: :delete
 end
