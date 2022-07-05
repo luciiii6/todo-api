@@ -4,6 +4,7 @@ require 'rails_helper'
 
 RSpec.describe 'Todos', type: :request do
   describe 'GET /index' do
+    subject(:get_todos) { get todos_path }
     let(:params) do
       {
         todo: {
@@ -13,18 +14,19 @@ RSpec.describe 'Todos', type: :request do
     end
 
     before(:each) do
-      post todos_path, params: params
+      2.times { post todos_path, params: params }
     end
 
-    it 'returns status 200' do
-      get todos_path
-      expect(response).to have_http_status(:ok)
-    end
+    context 'successful get after calling post endpoint' do
+      it 'returns status 200' do
+        get_todos
+        expect(response).to have_http_status(:ok)
+      end
 
-    it 'returns 2 todos' do
-      post todos_path, params: params
-      get todos_path
-      expect(JSON.parse(response.body, symbolize_names: true)[:todos].length).to eq 2
+      it 'returns 2 todos' do
+        get_todos
+        expect(JSON.parse(response.body, symbolize_names: true)[:todos].length).to eq 2
+      end
     end
   end
 
