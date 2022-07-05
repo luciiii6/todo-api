@@ -180,23 +180,21 @@ RSpec.describe 'Todos', type: :request do
   end
 
   describe 'DELETE /destroy_all' do
-    def todo
-      Todo.create(content: 'test', completed: false)
-    end
-
+    subject(:delete_todos) { delete '/todos'}
     before(:each) do
-      3.times { todo }
+      3.times { Todo.create(content: 'test', completed: false) }
     end
 
-    it 'returns status 200' do
-      delete '/todos'
-      expect(response).to have_http_status(:ok)
-      expect(Todo.all.length).to eq 0
-    end
+    context 'request to delete all todos' do
+      it 'responds with status code 200' do
+        delete_todos
+        expect(response).to have_http_status(:ok)
+      end
 
-    it 'shows the total number of records is 0' do
-      delete '/todos'
-      expect(Todo.all.length).to eq 0
+      it 'shows the total number of records is 0' do
+        delete_todos
+        expect(Todo.all.length).to eq 0
+      end
     end
   end
 end
