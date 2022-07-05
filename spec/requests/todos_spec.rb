@@ -21,7 +21,7 @@ RSpec.describe 'Todos', type: :request do
       expect(response).to have_http_status(:ok)
     end
 
-    it 'returns one or more todos' do
+    it 'returns 2 todos' do
       post todos_path, params: params
       get todos_path
       expect(JSON.parse(response.body, symbolize_names: true)[:todos].length).to eq 2
@@ -71,7 +71,7 @@ RSpec.describe 'Todos', type: :request do
       end
     end
 
-    context 'with null content' do
+    context 'with empty string content' do
       let(:params) do
         {
           todo: {
@@ -112,7 +112,7 @@ RSpec.describe 'Todos', type: :request do
       expect(response).to have_http_status(404)
     end
 
-    it 'it responds 400 from an empty body' do
+    it 'it responds 400 because parameter :completed has unaccepted value' do
       params[:todo][:completed] = 213_124_215
       put "/todos/#{todo.id}", params: params
 
@@ -151,6 +151,11 @@ RSpec.describe 'Todos', type: :request do
     it 'returns status 200' do
       delete '/todos'
       expect(response).to have_http_status(:ok)
+      expect(Todo.all.length).to eq 0
+    end
+
+    it 'shows the total number of records is 0' do
+      delete '/todos'
       expect(Todo.all.length).to eq 0
     end
   end
