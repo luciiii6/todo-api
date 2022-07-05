@@ -106,13 +106,24 @@ RSpec.describe 'Todos', type: :request do
       expect(response).to have_http_status(:ok)
     end
 
+    it 'returns status 200 only with parameter :completed' do
+      params = {
+        todo: {
+          completed: true
+        }
+      }
+      put "/todos/#{todo.id}", params: params
+
+      expect(response).to have_http_status(200)
+    end
+
     it "doesn't find id and returns 404" do
       put "/todos/#{rand(12_032)}", params: params
 
       expect(response).to have_http_status(404)
     end
 
-    it 'it responds 400 because parameter :completed has unaccepted value' do
+    it 'responds 400 because parameter :completed has unaccepted value' do
       params[:todo][:completed] = 213_124_215
       put "/todos/#{todo.id}", params: params
 
@@ -121,7 +132,6 @@ RSpec.describe 'Todos', type: :request do
   end
 
   describe 'DELETE /destroy' do
-
     def todo
       Todo.create(content: 'test', completed: false)
     end
@@ -139,7 +149,6 @@ RSpec.describe 'Todos', type: :request do
   end
 
   describe 'DELETE /destroy_all' do
-
     def todo
       Todo.create(content: 'test', completed: false)
     end
