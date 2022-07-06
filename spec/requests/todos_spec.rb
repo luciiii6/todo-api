@@ -97,7 +97,7 @@ RSpec.describe 'Todos', type: :request do
   end
 
   describe 'PUT /update' do
-    subject(:put_todos) { put "/todos/#{todo.id}", params: params }
+    subject(:put_todos) { put "/todos/#{todo_id}", params: params }
     let(:params) do
       {
         todo: {
@@ -106,17 +106,16 @@ RSpec.describe 'Todos', type: :request do
         }
       }
     end
-    let(:todo) do
-      Todo.create(content: 'test', completed: false)
+    let(:todo_id) do
+      Todo.create(content: 'test', completed: false).id
     end
 
-    context 'request with 2 parameters for update' do
-      it 'responds with status code 200' do
-        put_todos
-        expect(response).to have_http_status(:ok)
-      end
+    it 'responds with status code 200' do
+      put_todos
+      expect(response).to have_http_status(:ok)
     end
-    context 'request only with :completed parameter for update' do
+
+    context 'when marking the todo as completed' do
       let(:params) do
         {
           todo: {
@@ -131,10 +130,8 @@ RSpec.describe 'Todos', type: :request do
     end
 
     context 'request with non existent id' do
-      let(:todo) do
-        todo = Todo.create(content: 'test', completed: false)
-        todo.id = rand(1_203_223)
-        todo
+      let(:todo_id) do
+        rand(1_203_223)
       end
 
       it 'responds with status code 404' do
@@ -159,9 +156,9 @@ RSpec.describe 'Todos', type: :request do
   end
 
   describe 'DELETE /destroy' do
-    subject(:delete_todo) { delete "/todos/#{todo.id}" }
-    let(:todo) do
-      Todo.create(content: 'test', completed: false)
+    subject(:delete_todo) { delete "/todos/#{todo_id}" }
+    let(:todo_id) do
+      Todo.create(content: 'test', completed: false).id
     end
     context 'request with good id' do
       it 'responds with status code 200' do
@@ -170,10 +167,8 @@ RSpec.describe 'Todos', type: :request do
       end
     end
     context 'request with non existent id' do
-      let(:todo) do
-        todo = Todo.create(content: 'test', completed: false)
-        todo.id = rand(12_032_213_213)
-        todo
+      let(:todo_id) do
+        rand(12_032_213_213)
       end
       it 'responds with status code 404' do
         delete_todo
