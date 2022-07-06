@@ -20,7 +20,7 @@ Metrics/BlockLength:
   Enabled: false
 
 Metrics/PerceivedComplexity:
-  Enabled: false
+  Enabled: true
 
 Lint/EmptyBlock:
   Enabled: false
