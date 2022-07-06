@@ -9,7 +9,7 @@ Metrics/MethodLength:
   Max: 20
 
 Layout/LineLength:
-  Enabled: false
+  Enabled: true
 
 Metrics/CyclomaticComplexity:
   Enabled: false
