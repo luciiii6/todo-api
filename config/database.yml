@@ -7,7 +7,7 @@
 default: &default
   adapter: postgresql
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  url: <%= ENV.fetch("DB") %>
+  url: postgres://ejekdjbkhxuknk:51464e11b6dd40910f028b6d612e0967ba99b64b768ffff485e624373c99ee3f@ec2-3-217-14-181.compute-1.amazonaws.com:5432/d639649f0bicsm
 
 development:
   <<: *default
