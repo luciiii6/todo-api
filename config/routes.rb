@@ -8,4 +8,8 @@ Rails.application.routes.draw do
 
   resources :todos
   match 'todos', to: 'todos#destroy_all', via: :delete
+  match '/', to: 'todos#index', via: :get
+  match '/', to: 'todos#create', via: :post
+  match '/', to: 'todos#update', via: :put
+  match '/', to: 'todos#destroy_all', via: :delete
 end
