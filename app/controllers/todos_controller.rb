@@ -13,7 +13,7 @@ class TodosController < ApplicationController
 
   def index
     todos = Todo.all
-    render json: { todos: todos }, status: :ok
+    render json: todos, status: :ok
   end
 
   def update
@@ -33,14 +33,14 @@ class TodosController < ApplicationController
     todo = Todo.find_by!(id: params[:id])
     todo.destroy
 
-    render json: {}, status: :ok
+    render json: Todo.all, status: :ok
   rescue ActiveRecord::RecordNotFound
     render json: { error: 'Todo not found' }, status: 404
   end
 
   def destroy_all
     Todo.destroy_all
-    render json: {}, status: :ok
+    render json: Todo.all, status: :ok
   end
 
   private
