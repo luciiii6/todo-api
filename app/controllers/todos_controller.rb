@@ -16,7 +16,7 @@ class TodosController < ApplicationController
 
   def update
     todo = Todo.find_by!(id: params[:id])
-    todo.content = validated_params[:content]
+    todo.content = validated_params[:content] if validated_params[:content]
     todo.completed = validated_params[:completed]
     todo.save!
 
