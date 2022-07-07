@@ -5,6 +5,7 @@ require 'rails_helper'
 RSpec.describe 'Todos', type: :request do
   describe 'GET /index' do
     subject(:get_todos) { get todos_path }
+
     let(:params) do
       {
         todo: {
@@ -13,26 +14,25 @@ RSpec.describe 'Todos', type: :request do
       }
     end
 
-    before(:each) do
+    before do
       2.times { post todos_path, params: params }
     end
 
-    context 'successful get after calling post endpoint' do
-      it 'returns status 200' do
-        get_todos
-        expect(response).to have_http_status(:ok)
-      end
+    it 'returns status 200' do
+      get_todos
+      expect(response).to have_http_status(:ok)
+    end
 
-      it 'returns 2 todos' do
-        get_todos
-        expect(JSON.parse(response.body, symbolize_names: true)[:todos].length).to eq 2
-      end
+    it 'returns 2 todos' do
+      get_todos
+      expect(JSON.parse(response.body, symbolize_names: true)[:todos].length).to eq 2
     end
   end
 
   describe 'POST /create' do
     subject(:post_todos) { post todos_path, params: params }
-    context 'request with valid parameters' do
+
+    context 'when request has valid parameters' do
       let(:params) do
         {
           todo: {
@@ -47,11 +47,11 @@ RSpec.describe 'Todos', type: :request do
       end
 
       it 'increases the count of records by 1' do
-        expect { post_todos }.to change { Todo.count }.by(1)
+        expect { post_todos }.to change(Todo, :count).by(1)
       end
     end
 
-    context 'request with missing content' do
+    context 'when request has missing content' do
       let(:params) do
         {
           todo: {
@@ -61,7 +61,7 @@ RSpec.describe 'Todos', type: :request do
 
       it 'responds with status code 400' do
         post_todos
-        expect(response).to have_http_status(400)
+        expect(response).to have_http_status(:bad_request)
       end
 
       it 'responds with error message Content missing' do
@@ -70,17 +70,18 @@ RSpec.describe 'Todos', type: :request do
       end
     end
 
-    context 'request with missing/empty body' do
+    context 'when request has missing/empty body' do
       let(:params) do
         {}
       end
+
       it 'responds with status code 400' do
         post_todos
-        expect(response).to have_http_status(400)
+        expect(response).to have_http_status(:bad_request)
       end
     end
 
-    context 'request with empty string content' do
+    context 'when request has empty string content' do
       let(:params) do
         {
           todo: {
@@ -91,13 +92,14 @@ RSpec.describe 'Todos', type: :request do
 
       it 'responds with status code 400' do
         post_todos
-        expect(response).to have_http_status(400)
+        expect(response).to have_http_status(:bad_request)
       end
     end
   end
 
   describe 'PUT /update' do
     subject(:put_todos) { put "/todos/#{todo_id}", params: params }
+
     let(:params) do
       {
         todo: {
@@ -123,23 +125,25 @@ RSpec.describe 'Todos', type: :request do
           }
         }
       end
+
       it 'responds with status code 200' do
         put_todos
-        expect(response).to have_http_status(200)
+        expect(response).to have_http_status(:ok)
       end
     end
 
-    context 'request with non existent id' do
+    context 'when request has non existent id' do
       let(:todo_id) do
         rand(1_203_223)
       end
 
       it 'responds with status code 404' do
         put_todos
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
       end
     end
-    context 'request with unaccepted value for :completed' do
+
+    context 'when request has unaccepted value for :completed' do
       let(:params) do
         {
           todo: {
@@ -148,51 +152,53 @@ RSpec.describe 'Todos', type: :request do
           }
         }
       end
+
       it 'responds with status code 400' do
         put_todos
-        expect(response).to have_http_status(400)
+        expect(response).to have_http_status(:bad_request)
       end
     end
   end
 
   describe 'DELETE /destroy' do
     subject(:delete_todo) { delete "/todos/#{todo_id}" }
+
     let(:todo_id) do
       Todo.create(content: 'test', completed: false).id
     end
-    context 'request with good id' do
-      it 'responds with status code 200' do
-        delete_todo
-        expect(response).to have_http_status(:ok)
-      end
+
+    it 'responds with status code 200' do
+      delete_todo
+      expect(response).to have_http_status(:ok)
     end
-    context 'request with non existent id' do
+
+    context 'when request has non existent id' do
       let(:todo_id) do
         rand(12_032_213_213)
       end
+
       it 'responds with status code 404' do
         delete_todo
-        expect(response).to have_http_status(404)
+        expect(response).to have_http_status(:not_found)
       end
     end
   end
 
   describe 'DELETE /destroy_all' do
     subject(:delete_todos) { delete '/todos' }
-    before(:each) do
+
+    before do
       3.times { Todo.create(content: 'test', completed: false) }
     end
 
-    context 'request to delete all todos' do
-      it 'responds with status code 200' do
-        delete_todos
-        expect(response).to have_http_status(:ok)
-      end
+    it 'responds with status code 200' do
+      delete_todos
+      expect(response).to have_http_status(:ok)
+    end
 
-      it 'shows the total number of records is 0' do
-        delete_todos
-        expect(Todo.all.length).to eq 0
-      end
+    it 'shows the total number of records is 0' do
+      delete_todos
+      expect(Todo.all.length).to eq 0
     end
   end
 end
