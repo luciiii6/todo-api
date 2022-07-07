@@ -25,7 +25,7 @@ RSpec.describe 'Todos', type: :request do
 
     it 'returns 2 todos' do
       get_todos
-      expect(JSON.parse(response.body, symbolize_names: true)[:todos].length).to eq 2
+      expect(JSON.parse(response.body, symbolize_names: true).length).to eq 2
     end
   end
 
