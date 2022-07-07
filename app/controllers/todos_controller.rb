@@ -16,6 +16,13 @@ class TodosController < ApplicationController
     render json: todos, status: :ok
   end
 
+  def show
+    todo = Todo.find_by!(id: params[:id])
+    render json: todo, status: :ok
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: 'Todo not found' }, status: 404
+  end
+
   def update
     todo = Todo.find_by!(id: params[:id])
     todo.title = validated_params[:title] if validated_params[:title]
