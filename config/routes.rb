@@ -11,5 +11,5 @@ Rails.application.routes.draw do
   match '/', to: 'todos#index', via: :get
   match '/', to: 'todos#create', via: :post
   match '/', to: 'todos#update', via: :put
-  match '/', to: 'todos#delete', via: :delete
+  match '/', to: 'todos#destroy_all', via: :delete
 end
