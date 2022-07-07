@@ -108,8 +108,8 @@ RSpec.describe 'Todos', type: :request do
     end
   end
 
-  describe 'PUT /update' do
-    subject(:put_todos) { put "/todos/#{todo_id}", params: params }
+  describe 'PATCH /update' do
+    subject(:patch_todos) { patch "/todos/#{todo_id}", params: params }
 
     let(:params) do
       {
@@ -124,7 +124,7 @@ RSpec.describe 'Todos', type: :request do
     end
 
     it 'responds with status code 200' do
-      put_todos
+      patch_todos
       expect(response).to have_http_status(:ok)
     end
 
@@ -138,7 +138,7 @@ RSpec.describe 'Todos', type: :request do
       end
 
       it 'responds with status code 200' do
-        put_todos
+        patch_todos
         expect(response).to have_http_status(:ok)
       end
     end
@@ -149,7 +149,7 @@ RSpec.describe 'Todos', type: :request do
       end
 
       it 'responds with status code 404' do
-        put_todos
+        patch_todos
         expect(response).to have_http_status(:not_found)
       end
     end
@@ -165,7 +165,7 @@ RSpec.describe 'Todos', type: :request do
       end
 
       it 'responds with status code 400' do
-        put_todos
+        patch_todos
         expect(response).to have_http_status(:bad_request)
       end
     end
