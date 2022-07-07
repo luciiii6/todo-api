@@ -9,7 +9,7 @@ RSpec.describe 'Todos', type: :request do
     let(:params) do
       {
         todo: {
-          content: 'test'
+          title: 'test'
         }
       }
     end
@@ -36,7 +36,7 @@ RSpec.describe 'Todos', type: :request do
       let(:params) do
         {
           todo: {
-            content: 'test'
+            title: 'test'
           }
         }
       end
@@ -51,7 +51,7 @@ RSpec.describe 'Todos', type: :request do
       end
     end
 
-    context 'when request has missing content' do
+    context 'when request has missing title' do
       let(:params) do
         {
           todo: {
@@ -81,11 +81,11 @@ RSpec.describe 'Todos', type: :request do
       end
     end
 
-    context 'when request has empty string content' do
+    context 'when request has empty string title' do
       let(:params) do
         {
           todo: {
-            content: ''
+            title: ''
           }
         }
       end
@@ -103,13 +103,13 @@ RSpec.describe 'Todos', type: :request do
     let(:params) do
       {
         todo: {
-          content: 'testeeeed',
+          title: 'testeeeed',
           completed: true
         }
       }
     end
     let(:todo_id) do
-      Todo.create(content: 'test', completed: false).id
+      Todo.create(title: 'test', completed: false).id
     end
 
     it 'responds with status code 200' do
@@ -147,7 +147,7 @@ RSpec.describe 'Todos', type: :request do
       let(:params) do
         {
           todo: {
-            content: 'testeeeed',
+            title: 'testeeeed',
             completed: 1_232_142_512
           }
         }
@@ -164,7 +164,7 @@ RSpec.describe 'Todos', type: :request do
     subject(:delete_todo) { delete "/todos/#{todo_id}" }
 
     let(:todo_id) do
-      Todo.create(content: 'test', completed: false).id
+      Todo.create(title: 'test', completed: false).id
     end
 
     it 'responds with status code 200' do
@@ -188,7 +188,7 @@ RSpec.describe 'Todos', type: :request do
     subject(:delete_todos) { delete '/todos' }
 
     before do
-      3.times { Todo.create(content: 'test', completed: false) }
+      3.times { Todo.create(title: 'test', completed: false) }
     end
 
     it 'responds with status code 200' do
