@@ -4,6 +4,8 @@ class TodosController < ApplicationController
   def create
     todo = Todo.create(title: validated_params[:title], completed: false)
     todo.url = url_for(todo)
+    todo.save!
+
     render json: todo, status: :created
   rescue ActionController::ParameterMissing
     render json: { error: 'Content missing' }, status: 400
