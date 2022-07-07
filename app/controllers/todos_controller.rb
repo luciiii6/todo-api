@@ -2,15 +2,15 @@
 
 class TodosController < ApplicationController
   def create
-    Todo.create(title: validated_params[:title], completed: false)
-    render action: 'index', status: :created
+    todo = Todo.create(title: validated_params[:title], completed: false)
+    todo.url = url_for(todo)
+    render json: todo, status: :created
   rescue ActionController::ParameterMissing
     render json: { error: 'Content missing' }, status: 400
   end
 
   def index
     todos = Todo.all
-
     render json: { todos: todos }, status: :ok
   end
 
@@ -20,7 +20,7 @@ class TodosController < ApplicationController
     todo.completed = validated_params[:completed]
     todo.save!
 
-    render action: 'index', status: :ok
+    render json: todo, status: :ok
   rescue ActiveRecord::RecordNotFound
     render json: { error: 'Todo not found' }, status: 404
   rescue ActionController::ParameterMissing
