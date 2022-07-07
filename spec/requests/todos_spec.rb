@@ -49,6 +49,17 @@ RSpec.describe 'Todos', type: :request do
       it 'increases the count of records by 1' do
         expect { post_todos }.to change(Todo, :count).by(1)
       end
+
+      it 'has the same title with the request' do
+        post_todos
+        expect(JSON.parse(response.body, symbolize_names: true)[:title]).to eq('test')
+      end
+
+      it 'generates url for todo with the id contained' do
+        post_todos
+        response_json = JSON.parse(response.body, symbolize_names: true)
+        expect(response_json[:url]).to include(response_json[:id].to_s).once
+      end
     end
 
     context 'when request has missing title' do
