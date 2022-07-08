@@ -51,7 +51,7 @@ class TodosController < ApplicationController
   private
 
   def todo_params
-    params.require(:todo).permit(:title, :completed)
+    params.require(:todo).permit(:title, :completed, :order)
   end
 
   def validated_params
