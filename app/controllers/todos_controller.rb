@@ -2,7 +2,7 @@
 
 class TodosController < ApplicationController
   def create
-    todo = Todo.create(title: validated_params[:title], completed: false, order: validated_params[:order])
+    todo = Todo.create(title: validated_params_for_create[:title], completed: false, order: validated_params_for_create[:order])
     todo.url = url_for(todo)
     todo.save!
 
@@ -25,7 +25,7 @@ class TodosController < ApplicationController
 
   def update
     todo = Todo.find_by!(id: params[:id])
-    update_todo(todo, validated_params)
+    update_todo(todo, todo_params)
 
     render json: todo, status: :ok
   rescue ActiveRecord::RecordNotFound
@@ -54,7 +54,7 @@ class TodosController < ApplicationController
     params.require(:todo).permit(:title, :completed, :order)
   end
 
-  def validated_params
+  def validated_params_for_create
     return todo_params if todo_params.key?('title') && todo_params['title'] != '' && !todo_params.key?('completed')
     return todo_params if todo_params['completed'] == 'true' || todo_params['completed'] == 'false'
 
