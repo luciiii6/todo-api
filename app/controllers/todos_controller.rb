@@ -2,7 +2,8 @@
 
 class TodosController < ApplicationController
   def create
-    todo = Todo.create(title: validated_params_for_create[:title], completed: false, order: validated_params_for_create[:order])
+    todo = Todo.create(title: validated_params_for_create[:title], completed: false,
+                       order: validated_params_for_create[:order])
     todo.url = url_for(todo)
     todo.save!
 
