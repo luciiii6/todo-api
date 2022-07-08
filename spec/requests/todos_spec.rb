@@ -62,6 +62,23 @@ RSpec.describe 'Todos', type: :request do
       end
     end
 
+    context 'when creating a todo with order' do
+      let(:params) do
+        {
+          todo: {
+            title: 'test',
+            order: 10
+          }
+        }
+      end
+
+      it 'has the correct order number' do
+        post_todos
+        pp response.body
+        expect(JSON.parse(response.body, symbolize_names: true)[:order]).to eq 10
+      end
+    end
+
     context 'when request has missing title' do
       let(:params) do
         {
