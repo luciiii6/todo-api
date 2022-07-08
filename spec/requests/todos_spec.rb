@@ -144,6 +144,16 @@ RSpec.describe 'Todos', type: :request do
       expect(response).to have_http_status(:ok)
     end
 
+    it 'has the updated title' do
+      patch_todos
+      expect(JSON.parse(response.body, symbolize_names: true)[:title]).to eq 'testeeeed'
+    end
+
+    it 'has the updated completed status' do
+      patch_todos
+      expect(JSON.parse(response.body, symbolize_names: true)[:completed]).to be true
+    end
+
     context 'when marking the todo as completed' do
       let(:params) do
         {
