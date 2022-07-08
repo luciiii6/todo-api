@@ -169,6 +169,26 @@ RSpec.describe 'Todos', type: :request do
       end
     end
 
+    context 'when changing the order number' do
+      let(:params) do
+        {
+          todo: {
+            order: 22
+          }
+        }
+      end
+
+      it 'responds with status code 200' do
+        patch_todos
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'has the updated order number' do
+        patch_todos
+        expect(JSON.parse(response.body, symbolize_names: true)[:order]).to eq 22
+      end
+    end
+
     context 'when request has non existent id' do
       let(:todo_id) do
         rand(1_203_223)
@@ -177,22 +197,6 @@ RSpec.describe 'Todos', type: :request do
       it 'responds with status code 404' do
         patch_todos
         expect(response).to have_http_status(:not_found)
-      end
-    end
-
-    context 'when request has unaccepted value for :completed' do
-      let(:params) do
-        {
-          todo: {
-            title: 'testeeeed',
-            completed: 1_232_142_512
-          }
-        }
-      end
-
-      it 'responds with status code 400' do
-        patch_todos
-        expect(response).to have_http_status(:bad_request)
       end
     end
   end
