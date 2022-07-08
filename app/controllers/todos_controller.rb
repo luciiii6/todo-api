@@ -57,7 +57,7 @@ class TodosController < ApplicationController
 
   def validated_params_for_create
     return todo_params if todo_params.key?('title') && todo_params['title'] != '' && !todo_params.key?('completed')
-    return todo_params if todo_params['completed'] == 'true' || todo_params['completed'] == 'false'
+    return todo_params if todo_params['completed'] == true || todo_params['completed'] == false
 
     raise ActionController::ParameterMissing, 'Wrong parameters for request'
   end

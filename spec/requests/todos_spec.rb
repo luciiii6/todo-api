@@ -154,11 +154,26 @@ RSpec.describe 'Todos', type: :request do
       expect(JSON.parse(response.body, symbolize_names: true)[:completed]).to be true
     end
 
-    context 'when marking the todo as completed' do
+    context 'when marking the todo as completed as boolean' do
       let(:params) do
         {
           todo: {
             completed: true
+          }
+        }
+      end
+
+      it 'responds with status code 400' do
+        patch_todos
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'when marking the todo as completed as string' do
+      let(:params) do
+        {
+          todo: {
+            completed: 'true'
           }
         }
       end
