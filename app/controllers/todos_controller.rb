@@ -25,7 +25,7 @@ class TodosController < ApplicationController
 
   def update
     todo = Todo.find_by!(id: params[:id])
-    update_todo(todo, todo_params)
+    update_todo(todo, validated_params_for_update)
 
     render json: todo, status: :ok
   rescue ActiveRecord::RecordNotFound
@@ -59,6 +59,12 @@ class TodosController < ApplicationController
     return todo_params if todo_params['completed'] == 'true' || todo_params['completed'] == 'false'
 
     raise ActionController::ParameterMissing, 'Wrong parameters for request'
+  end
+
+  def validated_params_for_update
+    raise ActionController::ParameterMissing, 'Wrong parameters for request' if todo_params.empty?
+
+    todo_params
   end
 
   def update_todo(todo, params)
