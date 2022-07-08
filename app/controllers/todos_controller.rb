@@ -2,7 +2,7 @@
 
 class TodosController < ApplicationController
   def create
-    todo = Todo.create(title: validated_params[:title], completed: false)
+    todo = Todo.create(title: validated_params[:title], completed: false, order: validated_params[:order])
     todo.url = url_for(todo)
     todo.save!
 
@@ -64,6 +64,7 @@ class TodosController < ApplicationController
   def update_todo(todo, params)
     todo.title = params[:title] if params[:title]
     todo.completed = ActiveModel::Type::Boolean.new.cast(params[:completed]) if params.key?(:completed)
+    todo.order = params[:order] if params[:order]
     todo.save!
   end
 end
