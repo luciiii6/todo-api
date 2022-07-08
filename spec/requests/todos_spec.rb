@@ -74,7 +74,6 @@ RSpec.describe 'Todos', type: :request do
 
       it 'has the correct order number' do
         post_todos
-        pp response.body
         expect(JSON.parse(response.body, symbolize_names: true)[:order]).to eq 10
       end
     end
