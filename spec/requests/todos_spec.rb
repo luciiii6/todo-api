@@ -9,7 +9,7 @@ RSpec.describe 'Todos', type: :request do
     let(:params) do
       {
         todo: {
-          content: 'test'
+          title: 'test'
         }
       }
     end
@@ -25,7 +25,7 @@ RSpec.describe 'Todos', type: :request do
 
     it 'returns 2 todos' do
       get_todos
-      expect(JSON.parse(response.body, symbolize_names: true)[:todos].length).to eq 2
+      expect(JSON.parse(response.body, symbolize_names: true).length).to eq 2
     end
   end
 
@@ -36,7 +36,7 @@ RSpec.describe 'Todos', type: :request do
       let(:params) do
         {
           todo: {
-            content: 'test'
+            title: 'test'
           }
         }
       end
@@ -49,9 +49,36 @@ RSpec.describe 'Todos', type: :request do
       it 'increases the count of records by 1' do
         expect { post_todos }.to change(Todo, :count).by(1)
       end
+
+      it 'has the same title with the request' do
+        post_todos
+        expect(JSON.parse(response.body, symbolize_names: true)[:title]).to eq('test')
+      end
+
+      it 'generates url for todo with the id contained' do
+        post_todos
+        response_json = JSON.parse(response.body, symbolize_names: true)
+        expect(response_json[:url]).to include(response_json[:id].to_s).once
+      end
     end
 
-    context 'when request has missing content' do
+    context 'when creating a todo with order' do
+      let(:params) do
+        {
+          todo: {
+            title: 'test',
+            order: 10
+          }
+        }
+      end
+
+      it 'has the correct order number' do
+        post_todos
+        expect(JSON.parse(response.body, symbolize_names: true)[:order]).to eq 10
+      end
+    end
+
+    context 'when request has missing title' do
       let(:params) do
         {
           todo: {
@@ -81,11 +108,11 @@ RSpec.describe 'Todos', type: :request do
       end
     end
 
-    context 'when request has empty string content' do
+    context 'when request has empty string title' do
       let(:params) do
         {
           todo: {
-            content: ''
+            title: ''
           }
         }
       end
@@ -97,24 +124,34 @@ RSpec.describe 'Todos', type: :request do
     end
   end
 
-  describe 'PUT /update' do
-    subject(:put_todos) { put "/todos/#{todo_id}", params: params }
+  describe 'PATCH /update' do
+    subject(:patch_todos) { patch "/todos/#{todo_id}", params: params }
 
     let(:params) do
       {
         todo: {
-          content: 'testeeeed',
+          title: 'testeeeed',
           completed: true
         }
       }
     end
     let(:todo_id) do
-      Todo.create(content: 'test', completed: false).id
+      Todo.create(title: 'test', completed: false).id
     end
 
     it 'responds with status code 200' do
-      put_todos
+      patch_todos
       expect(response).to have_http_status(:ok)
+    end
+
+    it 'has the updated title' do
+      patch_todos
+      expect(JSON.parse(response.body, symbolize_names: true)[:title]).to eq 'testeeeed'
+    end
+
+    it 'has the updated completed status' do
+      patch_todos
+      expect(JSON.parse(response.body, symbolize_names: true)[:completed]).to be true
     end
 
     context 'when marking the todo as completed' do
@@ -127,8 +164,28 @@ RSpec.describe 'Todos', type: :request do
       end
 
       it 'responds with status code 200' do
-        put_todos
+        patch_todos
         expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'when changing the order number' do
+      let(:params) do
+        {
+          todo: {
+            order: 22
+          }
+        }
+      end
+
+      it 'responds with status code 200' do
+        patch_todos
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'has the updated order number' do
+        patch_todos
+        expect(JSON.parse(response.body, symbolize_names: true)[:order]).to eq 22
       end
     end
 
@@ -138,24 +195,8 @@ RSpec.describe 'Todos', type: :request do
       end
 
       it 'responds with status code 404' do
-        put_todos
+        patch_todos
         expect(response).to have_http_status(:not_found)
-      end
-    end
-
-    context 'when request has unaccepted value for :completed' do
-      let(:params) do
-        {
-          todo: {
-            content: 'testeeeed',
-            completed: 1_232_142_512
-          }
-        }
-      end
-
-      it 'responds with status code 400' do
-        put_todos
-        expect(response).to have_http_status(:bad_request)
       end
     end
   end
@@ -164,7 +205,7 @@ RSpec.describe 'Todos', type: :request do
     subject(:delete_todo) { delete "/todos/#{todo_id}" }
 
     let(:todo_id) do
-      Todo.create(content: 'test', completed: false).id
+      Todo.create(title: 'test', completed: false).id
     end
 
     it 'responds with status code 200' do
@@ -188,7 +229,7 @@ RSpec.describe 'Todos', type: :request do
     subject(:delete_todos) { delete '/todos' }
 
     before do
-      3.times { Todo.create(content: 'test', completed: false) }
+      3.times { Todo.create(title: 'test', completed: false) }
     end
 
     it 'responds with status code 200' do
