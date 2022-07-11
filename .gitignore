@@ -34,3 +34,4 @@
 db.env
 .env
 .idea
+.env.test

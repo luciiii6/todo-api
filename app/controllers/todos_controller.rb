@@ -57,20 +57,23 @@ class TodosController < ApplicationController
 
   def validated_params_for_create
     return todo_params if todo_params.key?('title') && todo_params['title'] != '' && !todo_params.key?('completed')
-    return todo_params if todo_params['completed'] == 'true' || todo_params['completed'] == 'false'
+    return todo_params if todo_params['completed'] == true || todo_params['completed'] == false
 
     raise ActionController::ParameterMissing, 'Wrong parameters for request'
   end
 
   def validated_params_for_update
-    raise ActionController::ParameterMissing, 'Wrong parameters for request' if todo_params.empty?
+    if todo_params.empty? || todo_params[:completed].is_a?(String)
+      raise ActionController::ParameterMissing,
+            'Wrong parameters for request'
+    end
 
     todo_params
   end
 
   def update_todo(todo, params)
     todo.title = params[:title] if params[:title]
-    todo.completed = ActiveModel::Type::Boolean.new.cast(params[:completed]) if params.key?(:completed)
+    todo.completed = params[:completed] if params.key?(:completed)
     todo.order = params[:order] if params[:order]
     todo.save!
   end
