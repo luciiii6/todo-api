@@ -19,12 +19,13 @@ class TodosController < ApplicationController
 
   def index
     verify_headers(request.headers)
+
     data = Todo.all
     if request.headers['Accept'].include? 'application/json'
       render json: data, status: :ok
+    else
+      render xml: data.map(&:attributes), status: :ok
     end
-
-    render xml: data.map(&:attributes), status: :ok
   end
 
   def show

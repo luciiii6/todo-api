@@ -41,7 +41,7 @@ RSpec.describe 'Todos', type: :request do
         { 'Accept' => 'application/xml' }
       end
 
-      fit 'responds with body as xml' do
+      it 'responds with body as xml' do
         get_todos
         expect(response.headers['Content-Type']).to include 'application/xml'
         pp response.body
@@ -156,7 +156,7 @@ RSpec.describe 'Todos', type: :request do
           }
         }
       end
-      fit 'has the content-type as xml' do
+      it 'has the content-type as xml' do
         post_todos
         expect(response).to have_http_status(:created)
         expect(response.headers['Content-Type']).to include 'application/xml'
