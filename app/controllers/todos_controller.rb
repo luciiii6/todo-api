@@ -2,19 +2,29 @@
 
 class TodosController < ApplicationController
   def create
+    verify_headers(request.headers)
     todo = Todo.create(title: validated_params_for_create[:title], completed: false,
                        order: validated_params_for_create[:order])
     todo.url = url_for(todo)
     todo.save!
+    if request.headers['Accept'].include? 'application/json'
+      render json: todo, status: :created
+    else
+      render xml: {todo: todo.attributes}, status: :created
+    end
 
-    render json: todo, status: :created
   rescue ActionController::ParameterMissing
     render json: { error: 'Content missing' }, status: 400
   end
 
   def index
-    todos = Todo.all
-    render json: todos, status: :ok
+    verify_headers(request.headers)
+    data = Todo.all
+    if request.headers['Accept'].include? 'application/json'
+      render json: data, status: :ok
+    end
+
+    render xml: data.map(&:attributes), status: :ok
   end
 
   def show
@@ -76,5 +86,10 @@ class TodosController < ApplicationController
     todo.completed = params[:completed] if params.key?(:completed)
     todo.order = params[:order] if params[:order]
     todo.save!
+  end
+
+  def verify_headers(headers)
+    render status: :precondition_required if headers['Accept'].exclude?('application/json') &&
+      headers['Accept'].exclude?('application/xml')
   end
 end
