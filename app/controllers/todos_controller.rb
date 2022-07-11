@@ -63,7 +63,10 @@ class TodosController < ApplicationController
   end
 
   def validated_params_for_update
-    raise ActionController::ParameterMissing, 'Wrong parameters for request' if todo_params.empty? || todo_params[:completed].is_a?(String)
+    if todo_params.empty? || todo_params[:completed].is_a?(String)
+      raise ActionController::ParameterMissing,
+            'Wrong parameters for request'
+    end
 
     todo_params
   end
