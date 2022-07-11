@@ -4,8 +4,11 @@ require 'rails_helper'
 
 RSpec.describe 'Todos', type: :request do
   describe 'GET /index' do
-    subject(:get_todos) { get todos_path }
+    subject(:get_todos) { get todos_path, headers: headers }
 
+    let(:headers) do
+      { 'Accept' => 'application/json' }
+    end
     let(:params) do
       {
         todo: {
@@ -15,7 +18,7 @@ RSpec.describe 'Todos', type: :request do
     end
 
     before do
-      2.times { post todos_path, params: params }
+      2.times { post todos_path, params: params, as: :json }
     end
 
     it 'returns status 200' do
@@ -27,10 +30,27 @@ RSpec.describe 'Todos', type: :request do
       get_todos
       expect(JSON.parse(response.body, symbolize_names: true).length).to eq 2
     end
+
+    it 'has the response content-type as json' do
+      get_todos
+      expect(response.headers['Content-Type']).to include 'application/json'
+    end
+
+    context 'when accept type needs to be as xml' do
+      let(:headers) do
+        { 'Accept' => 'application/xml' }
+      end
+
+      fit 'responds with body as xml' do
+        get_todos
+        expect(response.headers['Content-Type']).to include 'application/xml'
+        pp response.body
+      end
+    end
   end
 
   describe 'POST /create' do
-    subject(:post_todos) { post todos_path, params: params }
+    subject(:post_todos) { post todos_path, params: params, headers: headers, as: :json}
 
     context 'when request has valid parameters' do
       let(:params) do
@@ -120,6 +140,27 @@ RSpec.describe 'Todos', type: :request do
       it 'responds with status code 400' do
         post_todos
         expect(response).to have_http_status(:bad_request)
+      end
+    end
+
+    context 'when request is json and accepts xml as response' do
+      let(:headers) do
+        {
+          'Accept' => 'application/xml'
+        }
+      end
+      let(:params) do
+        {
+          todo: {
+            title: 'test'
+          }
+        }
+      end
+      fit 'has the content-type as xml' do
+        post_todos
+        expect(response).to have_http_status(:created)
+        expect(response.headers['Content-Type']).to include 'application/xml'
+        pp response.body
       end
     end
   end
