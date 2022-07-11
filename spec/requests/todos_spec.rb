@@ -125,7 +125,7 @@ RSpec.describe 'Todos', type: :request do
   end
 
   describe 'PATCH /update' do
-    subject(:patch_todos) { patch "/todos/#{todo_id}", params: params }
+    subject(:patch_todos) { patch "/todos/#{todo_id}", params: params, as: :json }
 
     let(:params) do
       {
@@ -163,7 +163,7 @@ RSpec.describe 'Todos', type: :request do
         }
       end
 
-      it 'responds with status code 400' do
+      it 'responds with status code 200' do
         patch_todos
         expect(response).to have_http_status(:ok)
       end
@@ -178,9 +178,9 @@ RSpec.describe 'Todos', type: :request do
         }
       end
 
-      it 'responds with status code 200' do
+      it 'responds with status code 400' do
         patch_todos
-        expect(response).to have_http_status(:ok)
+        expect(response).to have_http_status(:bad_request)
       end
     end
 
