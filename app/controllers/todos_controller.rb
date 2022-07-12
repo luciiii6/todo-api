@@ -6,11 +6,8 @@ class TodosController < ApplicationController
   def create
     verify_headers(request.headers)
     params = parse_params(request)
-    todo = Todo.create(title: validated_params_for_create(params)['title'], completed: false,
-                       order: validated_params_for_create(params)['order'])
-    todo.url = url_for(todo)
-    todo.save!
-    render_by_accepted_format(todo, request.headers)
+
+    render_by_accepted_format(create_todo(validated_params_for_create(params)), request.headers)
   rescue ActionController::ParameterMissing
     render json: { error: 'Content missing' }, status: 400
   end
@@ -32,7 +29,7 @@ class TodosController < ApplicationController
     todo = Todo.find_by!(id: params[:id])
     params = parse_params(request)
     update_todo(todo, validated_params_for_update(params))
-
+    
     render_by_accepted_format(todo, request.headers)
   rescue ActiveRecord::RecordNotFound
     render json: { error: 'Todo not found' }, status: 404
@@ -74,6 +71,14 @@ class TodosController < ApplicationController
     end
 
     params
+  end
+
+  def create_todo(validated_params)
+    todo = Todo.create(title: validated_params['title'], completed: false,
+                       order: validated_params['order'])
+    todo.url = url_for(todo)
+    todo.save!
+    todo
   end
 
   def update_todo(todo, params)
