@@ -49,7 +49,7 @@ RSpec.describe 'Todos', type: :request do
   end
 
   describe 'POST /create' do
-    subject(:post_todos) { post todos_path, params: params, headers: headers, as: type}
+    subject(:post_todos) { post todos_path, params: params, headers: headers, as: type }
 
     let(:type) do
       :json
@@ -160,9 +160,14 @@ RSpec.describe 'Todos', type: :request do
         }
       end
 
-      it 'has the accept type as xml' do
+      it 'responds the same as the accept type (xml)' do
         post_todos
         expect(response.headers['Content-Type']).to include 'application/xml'
+      end
+
+      it 'has the correct title' do
+        post_todos
+        expect(Hash.from_xml(response.body)['hash']['todo']['title']).to eq 'test'
       end
     end
 
@@ -184,15 +189,49 @@ RSpec.describe 'Todos', type: :request do
         :xml
       end
 
-      it 'has the accept type as xml' do
+      it 'responds the same as the accept type (xml)' do
         post_todos
         expect(response.headers['Content-Type']).to include 'application/xml'
       end
+
+      it 'has the correct title' do
+        post_todos
+        expect(Hash.from_xml(response.body)['hash']['todo']['title']).to eq 'test'
+      end
     end
+
+    context 'when request is xml and accepts json as response' do
+      let(:headers) do
+        {
+          'Accept' => 'application/json',
+          'CONTENT-TYPE' => 'application/xml'
+        }
+      end
+      let(:params) do
+        {
+          todo: {
+            title: 'test'
+          }
+        }.to_xml
+      end
+      let(:type) do
+        :xml
+      end
+
+      it 'responds the same as the accept type (json)' do
+        post_todos
+        expect(response.headers['Content-Type']).to include 'application/json'
+      end
+
+      it 'has the correct title' do
+        post_todos
+        expect(JSON.parse(response.body)['title']).to eq 'test'
+      end
+  end
   end
 
   describe 'PATCH /update' do
-    subject(:patch_todos) { patch "/todos/#{todo_id}", params: params, as: :json }
+    subject(:patch_todos) { patch "/todos/#{todo_id}", params: params, headers: headers ,as: type }
 
     let(:params) do
       {
@@ -204,6 +243,9 @@ RSpec.describe 'Todos', type: :request do
     end
     let(:todo_id) do
       Todo.create(title: 'test', completed: false).id
+    end
+    let(:type) do
+      :json
     end
 
     it 'responds with status code 200' do
@@ -281,6 +323,62 @@ RSpec.describe 'Todos', type: :request do
         expect(response).to have_http_status(:not_found)
       end
     end
+
+    context 'when request is json and accepts xml as response' do
+      let(:headers) do
+        {
+          'Accept' => 'application/xml',
+          'CONTENT-TYPE' => 'application/json'
+        }
+      end
+      let(:params) do
+        {
+          todo: {
+            title: 'no more test'
+          }
+        }
+      end
+
+      it 'responds the same as the accept type (xml)' do
+        patch_todos
+        expect(response.headers['Content-Type']).to include 'application/xml'
+      end
+
+      it 'has the correct title' do
+        patch_todos
+        expect(Hash.from_xml(response.body)['hash']['todo']['title']).to eq 'no more test'
+      end
+    end
+
+    context 'when request is xml and accepts xml as response' do
+      let(:headers) do
+        {
+          'Accept' => 'application/xml',
+          'CONTENT-TYPE' => 'application/xml'
+        }
+      end
+      let(:params) do
+        {
+          todo: {
+            title: 'no more test'
+          }
+        }.to_xml
+      end
+      let(:type) do
+        :xml
+      end
+
+      it 'responds the same as the accept type (xml)' do
+        patch_todos
+        expect(response.headers['Content-Type']).to include 'application/xml'
+      end
+
+      it 'has the correct title' do
+        patch_todos
+        expect(Hash.from_xml(response.body)['hash']['todo']['title']).to eq 'no more test'
+      end
+    end
+
   end
 
   describe 'DELETE /destroy' do
