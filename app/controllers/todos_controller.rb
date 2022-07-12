@@ -2,7 +2,7 @@
 
 class TodosController < ApplicationController
   def create
-    verify_headers(request.headers)
+    #verify_headers(request.headers)
     params = parse_params(request)
 
     render_by_accepted_format(create_todo(validated_params_for_create(params)), request.headers)
@@ -11,7 +11,7 @@ class TodosController < ApplicationController
   end
 
   def index
-    verify_headers(request.headers)
+    #verify_headers(request.headers)
     render_by_accepted_format(Todo.all, request.headers)
   end
 
@@ -23,7 +23,7 @@ class TodosController < ApplicationController
   end
 
   def update
-    verify_headers(request.headers)
+    #verify_headers(request.headers)
     todo = Todo.find_by!(id: params[:id])
     params = parse_params(request)
     update_todo(todo, validated_params_for_update(params))
@@ -86,11 +86,6 @@ class TodosController < ApplicationController
     todo.save!
   end
 
-  def verify_headers(headers)
-    render status: :precondition_required if headers['Accept'].exclude?('application/json') &&
-                                             headers['Accept'].exclude?('application/xml')
-  end
-
   def successful_status_code(headers)
     return :created if headers['REQUEST_METHOD'] == 'POST'
 
@@ -98,12 +93,14 @@ class TodosController < ApplicationController
   end
 
   def render_by_accepted_format(data, headers)
-    if headers['Accept'].include? 'application/json'
-      render json: data, status: successful_status_code(headers)
-    elsif headers['REQUEST_METHOD'] == 'GET'
-      render xml: data.map(&:attributes), status: successful_status_code(request.headers)
+    if headers['Accept'].include?('application/xml')
+      if headers['REQUEST_METHOD'] == 'GET'
+        render xml: data.map(&:attributes), status: successful_status_code(request.headers)
+      else
+        render xml: { todo: data.attributes }, status: successful_status_code(headers)
+      end
     else
-      render xml: { todo: data.attributes }, status: successful_status_code(headers)
+      render json: data, status: successful_status_code(headers)
     end
   end
 

@@ -247,9 +247,9 @@ RSpec.describe 'Todos', type: :request do
         :xml
       end
 
-      it 'responds with status :precondition required' do
+      it 'responds with json as default' do
         post_todos
-        expect(response).to have_http_status(:precondition_required)
+        expect(response.headers['CONTENT-TYPE']).to include('application/json')
       end
     end
   end
