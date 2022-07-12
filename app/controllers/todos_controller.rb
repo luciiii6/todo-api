@@ -2,7 +2,6 @@
 
 class TodosController < ApplicationController
   def create
-    #verify_headers(request.headers)
     params = parse_params(request)
 
     render_by_accepted_format(create_todo(validated_params_for_create(params)), request.headers)
@@ -11,7 +10,6 @@ class TodosController < ApplicationController
   end
 
   def index
-    #verify_headers(request.headers)
     render_by_accepted_format(Todo.all, request.headers)
   end
 
@@ -23,7 +21,6 @@ class TodosController < ApplicationController
   end
 
   def update
-    #verify_headers(request.headers)
     todo = Todo.find_by!(id: params[:id])
     params = parse_params(request)
     update_todo(todo, validated_params_for_update(params))
