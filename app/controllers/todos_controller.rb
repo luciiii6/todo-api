@@ -90,14 +90,26 @@ class TodosController < ApplicationController
   end
 
   def render_by_accepted_format(data, headers)
-    if headers['Accept'].include?('application/xml')
       if headers['REQUEST_METHOD'] == 'GET'
-        render xml: data.map(&:attributes), status: successful_status_code(request.headers)
+        render_for_get(data, headers)
       else
-        render xml: { todo: data.attributes }, status: successful_status_code(headers)
+        render_for_post_and_patch(data, headers)
       end
+  end
+
+  def render_for_post_and_patch(data, headers)
+    if headers['Accept'].include?('application/xml')
+      render xml: { todo: data.attributes }, status: successful_status_code(headers)
     else
-      render json: data, status: successful_status_code(headers)
+      render json: { todo: data }, status: successful_status_code(headers)
+    end
+  end
+
+  def render_for_get(data, headers)
+    if headers['Accept'].include?('application/xml')
+      render xml: data.map(&:attributes), status: successful_status_code(request.headers)
+    else
+      render json: { todos: data }, status: successful_status_code(headers)
     end
   end
 

@@ -28,7 +28,7 @@ RSpec.describe 'Todos', type: :request do
 
     it 'returns 2 todos' do
       get_todos
-      expect(JSON.parse(response.body, symbolize_names: true).length).to eq 2
+      expect(JSON.parse(response.body, symbolize_names: true)[:todos].length).to eq 2
     end
 
     it 'has the response content-type as json' do
@@ -75,12 +75,12 @@ RSpec.describe 'Todos', type: :request do
 
       it 'has the same title with the request' do
         post_todos
-        expect(JSON.parse(response.body, symbolize_names: true)[:title]).to eq('test')
+        expect(JSON.parse(response.body, symbolize_names: true)[:todo][:title]).to eq('test')
       end
 
       it 'generates url for todo with the id contained' do
         post_todos
-        response_json = JSON.parse(response.body, symbolize_names: true)
+        response_json = JSON.parse(response.body, symbolize_names: true)[:todo]
         expect(response_json[:url]).to include(response_json[:id].to_s).once
       end
     end
@@ -97,7 +97,7 @@ RSpec.describe 'Todos', type: :request do
 
       it 'has the correct order number' do
         post_todos
-        expect(JSON.parse(response.body, symbolize_names: true)[:order]).to eq 10
+        expect(JSON.parse(response.body, symbolize_names: true)[:todo][:order]).to eq 10
       end
     end
 
@@ -225,7 +225,7 @@ RSpec.describe 'Todos', type: :request do
 
       it 'has the correct title' do
         post_todos
-        expect(JSON.parse(response.body)['title']).to eq 'test'
+        expect(JSON.parse(response.body)['todo']['title']).to eq 'test'
       end
     end
 
@@ -279,12 +279,12 @@ RSpec.describe 'Todos', type: :request do
 
     it 'has the updated title' do
       patch_todos
-      expect(JSON.parse(response.body, symbolize_names: true)[:title]).to eq 'testeeeed'
+      expect(JSON.parse(response.body, symbolize_names: true)[:todo][:title]).to eq 'testeeeed'
     end
 
     it 'has the updated completed status' do
       patch_todos
-      expect(JSON.parse(response.body, symbolize_names: true)[:completed]).to be true
+      expect(JSON.parse(response.body, symbolize_names: true)[:todo][:completed]).to be true
     end
 
     context 'when marking the todo as completed as boolean' do
@@ -333,7 +333,7 @@ RSpec.describe 'Todos', type: :request do
 
       it 'has the updated order number' do
         patch_todos
-        expect(JSON.parse(response.body, symbolize_names: true)[:order]).to eq 22
+        expect(JSON.parse(response.body, symbolize_names: true)[:todo][:order]).to eq 22
       end
     end
 
