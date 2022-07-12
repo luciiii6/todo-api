@@ -1,31 +1,23 @@
 # frozen_string_literal: true
 
+require './lib/request_interpreter'
+
 class TodosController < ApplicationController
   def create
     verify_headers(request.headers)
-    todo = Todo.create(title: validated_params_for_create[:title], completed: false,
-                       order: validated_params_for_create[:order])
+    params = parse_params(request)
+    todo = Todo.create(title: validated_params_for_create(params)['title'], completed: false,
+                       order: validated_params_for_create(params)['order'])
     todo.url = url_for(todo)
     todo.save!
-    if request.headers['Accept'].include? 'application/json'
-      render json: todo, status: :created
-    else
-      render xml: {todo: todo.attributes}, status: :created
-    end
-
+    render_by_accepted_format(todo, request.headers)
   rescue ActionController::ParameterMissing
     render json: { error: 'Content missing' }, status: 400
   end
 
   def index
     verify_headers(request.headers)
-
-    data = Todo.all
-    if request.headers['Accept'].include? 'application/json'
-      render json: data, status: :ok
-    else
-      render xml: data.map(&:attributes), status: :ok
-    end
+    render_by_accepted_format(Todo.all, request.headers)
   end
 
   def show
@@ -39,7 +31,7 @@ class TodosController < ApplicationController
     todo = Todo.find_by!(id: params[:id])
     update_todo(todo, validated_params_for_update)
 
-    render json: todo, status: :ok
+    render json: todo, status: successful_status_code(request.headers)
   rescue ActiveRecord::RecordNotFound
     render json: { error: 'Todo not found' }, status: 404
   rescue ActionController::ParameterMissing
@@ -50,14 +42,14 @@ class TodosController < ApplicationController
     todo = Todo.find_by!(id: params[:id])
     todo.destroy
 
-    render json: Todo.all, status: :ok
+    render json: {}, status: successful_status_code(request.headers)
   rescue ActiveRecord::RecordNotFound
     render json: { error: 'Todo not found' }, status: 404
   end
 
   def destroy_all
     Todo.destroy_all
-    render json: Todo.all, status: :ok
+    render json: {}, status: successful_status_code(request.headers)
   end
 
   private
@@ -66,9 +58,9 @@ class TodosController < ApplicationController
     params.require(:todo).permit(:title, :completed, :order)
   end
 
-  def validated_params_for_create
-    return todo_params if todo_params.key?('title') && todo_params['title'] != '' && !todo_params.key?('completed')
-    return todo_params if todo_params['completed'] == true || todo_params['completed'] == false
+  def validated_params_for_create(params)
+    return params if params.key?('title') && params['title'] != '' && !params.key?('completed')
+    return params if params['completed'] == true || params['completed'] == false
 
     raise ActionController::ParameterMissing, 'Wrong parameters for request'
   end
@@ -91,6 +83,28 @@ class TodosController < ApplicationController
 
   def verify_headers(headers)
     render status: :precondition_required if headers['Accept'].exclude?('application/json') &&
-      headers['Accept'].exclude?('application/xml')
+                                             headers['Accept'].exclude?('application/xml')
+  end
+
+  def successful_status_code(headers)
+    return :created if headers['REQUEST_METHOD'] == 'POST'
+
+    :ok
+  end
+
+  def render_by_accepted_format(data, headers)
+    if headers['Accept'].include? 'application/json'
+      render json: data, status: successful_status_code(headers)
+    elsif headers['REQUEST_METHOD'] == 'GET'
+      render xml: data.map(&:attributes), status: successful_status_code(request.headers)
+    else
+      render xml: { todo: data.attributes }, status: successful_status_code(headers)
+    end
+  end
+
+  def parse_params(request)
+    return Hash.from_xml(request.raw_post)['hash']['todo'] if request.headers['CONTENT-TYPE'].include? 'application/xml'
+
+    todo_params
   end
 end

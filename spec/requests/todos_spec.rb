@@ -44,13 +44,16 @@ RSpec.describe 'Todos', type: :request do
       it 'responds with body as xml' do
         get_todos
         expect(response.headers['Content-Type']).to include 'application/xml'
-        pp response.body
       end
     end
   end
 
   describe 'POST /create' do
-    subject(:post_todos) { post todos_path, params: params, headers: headers, as: :json}
+    subject(:post_todos) { post todos_path, params: params, headers: headers, as: type}
+
+    let(:type) do
+      :json
+    end
 
     context 'when request has valid parameters' do
       let(:params) do
@@ -156,11 +159,34 @@ RSpec.describe 'Todos', type: :request do
           }
         }
       end
-      it 'has the content-type as xml' do
+
+      it 'has the accept type as xml' do
         post_todos
-        expect(response).to have_http_status(:created)
         expect(response.headers['Content-Type']).to include 'application/xml'
-        pp response.body
+      end
+    end
+
+    context 'when request is xml and accepts xml as response' do
+      let(:headers) do
+        {
+          'Accept' => 'application/xml',
+          'CONTENT-TYPE' => 'application/xml'
+        }
+      end
+      let(:params) do
+        {
+          todo: {
+            title: 'test'
+          }
+        }.to_xml
+      end
+      let(:type) do
+        :xml
+      end
+
+      it 'has the accept type as xml' do
+        post_todos
+        expect(response.headers['Content-Type']).to include 'application/xml'
       end
     end
   end
