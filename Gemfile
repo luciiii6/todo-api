@@ -47,10 +47,10 @@ group :development, :test do
   gem 'debug', platforms: %i[mri mingw x64_mingw]
   gem 'faker'
   gem 'json-schema'
+  gem 'nokogiri'
   gem 'rspec-rails'
   gem 'rubocop'
   gem 'rubocop-rspec'
-  gem 'nokogiri'
 end
 
 group :development do

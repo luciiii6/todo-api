@@ -95,6 +95,15 @@ RSpec.describe 'Todos', type: :request do
       }
     end
 
+    def validate(body)
+      xsd = Nokogiri::XML::Schema(File.read('./spec/requests/schema_post.xsd'))
+      doc = Nokogiri::XML(body)
+
+      return true if xsd.validate(doc).empty?
+
+      false
+    end
+
     context 'when request has valid parameters' do
       let(:params) do
         {
@@ -212,7 +221,12 @@ RSpec.describe 'Todos', type: :request do
 
       it 'has the correct title' do
         post_todos
-        expect(Hash.from_xml(response.body)['hash']['todo']['title']).to eq 'test'
+        expect(Hash.from_xml(response.body)['todo']['title']).to eq 'test'
+      end
+
+      it 'has the response as the defined XML schema' do
+        post_todos
+        expect(validate(response.body)).to be true
       end
     end
 
@@ -241,7 +255,7 @@ RSpec.describe 'Todos', type: :request do
 
       it 'has the correct title' do
         post_todos
-        expect(Hash.from_xml(response.body)['hash']['todo']['title']).to eq 'test'
+        expect(Hash.from_xml(response.body)['todo']['title']).to eq 'test'
       end
     end
 
@@ -437,7 +451,7 @@ RSpec.describe 'Todos', type: :request do
 
       it 'has the correct title' do
         patch_todos
-        expect(Hash.from_xml(response.body)['hash']['todo']['title']).to eq 'no more test'
+        expect(Hash.from_xml(response.body)['todo']['title']).to eq 'no more test'
       end
     end
 
@@ -467,12 +481,12 @@ RSpec.describe 'Todos', type: :request do
 
       it 'has the correct title' do
         patch_todos
-        expect(Hash.from_xml(response.body)['hash']['todo']['title']).to eq 'no more test'
+        expect(Hash.from_xml(response.body)['todo']['title']).to eq 'no more test'
       end
 
       it 'has the correct completed status' do
         patch_todos
-        expect(Hash.from_xml(response.body)['hash']['todo']['completed']).to be true
+        expect(Hash.from_xml(response.body)['todo']['completed']).to be true
       end
     end
   end

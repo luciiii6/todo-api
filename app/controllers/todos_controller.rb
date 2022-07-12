@@ -99,7 +99,8 @@ class TodosController < ApplicationController
 
   def render_for_post_and_patch(data, headers)
     if headers['Accept'].include?('application/xml')
-      render xml: { todo: data.attributes }, status: successful_status_code(headers)
+      render xml: data.attributes.slice('title', 'url', 'completed', 'order').to_xml(root: 'todo'),
+             status: successful_status_code(headers)
     else
       render json: { todo: data }, status: successful_status_code(headers)
     end
