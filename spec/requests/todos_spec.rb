@@ -384,7 +384,8 @@ RSpec.describe 'Todos', type: :request do
       let(:params) do
         {
           todo: {
-            title: 'no more test'
+            title: 'no more test',
+            completed: true
           }
         }.to_xml
       end
@@ -400,6 +401,11 @@ RSpec.describe 'Todos', type: :request do
       it 'has the correct title' do
         patch_todos
         expect(Hash.from_xml(response.body)['hash']['todo']['title']).to eq 'no more test'
+      end
+
+      it 'has the correct completed status' do
+        patch_todos
+        expect(Hash.from_xml(response.body)['hash']['todo']['completed']).to be true
       end
     end
   end
