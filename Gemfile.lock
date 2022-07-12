@@ -66,6 +66,8 @@ GEM
       i18n (>= 1.6, < 2)
       minitest (>= 5.1)
       tzinfo (~> 2.0)
+    addressable (2.8.0)
+      public_suffix (>= 2.0.2, < 5.0)
     ast (2.4.2)
     bootsnap (1.12.0)
       msgpack (~> 1.2)
@@ -93,6 +95,8 @@ GEM
     irb (1.4.1)
       reline (>= 0.3.0)
     json (2.6.2)
+    json-schema (3.0.0)
+      addressable (>= 2.8)
     loofah (2.18.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
@@ -131,6 +135,7 @@ GEM
     pry (0.14.1)
       coderay (~> 1.1)
       method_source (~> 1.0)
+    public_suffix (4.0.7)
     puma (5.6.4)
       nio4r (~> 2.0)
     racc (1.6.0)
@@ -223,6 +228,7 @@ DEPENDENCIES
   debug
   dotenv-rails
   faker
+  json-schema
   pg
   pry
   puma (~> 5.0)
