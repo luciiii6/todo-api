@@ -55,6 +55,24 @@ RSpec.describe 'Todos', type: :request do
       :json
     end
 
+    let(:schema) do
+      {
+        'type' => 'object',
+        'required' => %w[todo],
+        'properties' => {
+          'todo' => {
+            'type' => 'object',
+            'required' => %w[title url completed],
+            'properties' => {
+              'title' => { 'type' => 'string' },
+              'url' => { 'type' => 'string' },
+              'completed' => { 'type' => 'bool' }
+            }
+          }
+        }
+      }
+    end
+
     context 'when request has valid parameters' do
       let(:params) do
         {
@@ -82,6 +100,11 @@ RSpec.describe 'Todos', type: :request do
         post_todos
         response_json = JSON.parse(response.body, symbolize_names: true)[:todo]
         expect(response_json[:url]).to include(response_json[:id].to_s).once
+      end
+
+      it 'responds with a valid json schema' do
+        post_todos
+        expect(JSON::Validator.validate!(schema, JSON.parse(response.body))).to be true
       end
     end
 
@@ -266,11 +289,29 @@ RSpec.describe 'Todos', type: :request do
       }
     end
     let(:todo_id) do
-      Todo.create(title: 'test', completed: false).id
+      Todo.create(title: 'test', completed: false, url: 'test/23').id
     end
     let(:type) do
       :json
     end
+    let(:schema) do
+      {
+        'type' => 'object',
+        'required' => %w[todo],
+        'properties' => {
+          'todo' => {
+            'type' => 'object',
+            'required' => %w[title url completed],
+            'properties' => {
+              'title' => { 'type' => 'string' },
+              'url' => { 'type' => 'string' },
+              'completed' => { 'type' => 'bool' }
+            }
+          }
+        }
+      }
+    end
+
 
     it 'responds with status code 200' do
       patch_todos
@@ -285,6 +326,11 @@ RSpec.describe 'Todos', type: :request do
     it 'has the updated completed status' do
       patch_todos
       expect(JSON.parse(response.body, symbolize_names: true)[:todo][:completed]).to be true
+    end
+
+    it 'responds with a valid json schema' do
+      patch_todos
+      expect(JSON::Validator.validate!(schema, JSON.parse(response.body))).to be true
     end
 
     context 'when marking the todo as completed as boolean' do
