@@ -4,13 +4,13 @@ class TodosController < ApplicationController
   def create
     params = parse_params(request)
 
-    render_by_accepted_format(create_todo(validated_params_for_create(params)), request.headers)
+    render_by_method(create_todo(validated_params_for_create(params)), request.headers)
   rescue ActionController::ParameterMissing
     render json: { error: 'Content missing' }, status: 400
   end
 
   def index
-    render_by_accepted_format(Todo.all, request.headers)
+    render_by_method(Todo.all, request.headers)
   end
 
   def show
@@ -25,7 +25,7 @@ class TodosController < ApplicationController
     params = parse_params(request)
     update_todo(todo, validated_params_for_update(params))
 
-    render_by_accepted_format(todo, request.headers)
+    render_by_method(todo, request.headers)
   rescue ActiveRecord::RecordNotFound
     render json: { error: 'Todo not found' }, status: 404
   rescue ActionController::ParameterMissing
@@ -89,7 +89,7 @@ class TodosController < ApplicationController
     :ok
   end
 
-  def render_by_accepted_format(data, headers)
+  def render_by_method(data, headers)
     if headers['REQUEST_METHOD'] == 'GET'
       render_for_get(data, headers)
     else
