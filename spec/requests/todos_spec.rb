@@ -312,7 +312,6 @@ RSpec.describe 'Todos', type: :request do
       }
     end
 
-
     it 'responds with status code 200' do
       patch_todos
       expect(response).to have_http_status(:ok)
