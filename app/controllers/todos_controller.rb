@@ -108,7 +108,10 @@ class TodosController < ApplicationController
 
   def render_for_get(data, headers)
     if headers['Accept'].include?('application/xml')
-      render xml: data.map(&:attributes), status: successful_status_code(request.headers)
+
+      render xml: data.map(&:attributes).collect { |elem|
+                    elem.slice('title', 'url', 'completed', 'order')
+                  }.to_xml(root: 'todos'), status: successful_status_code(request.headers)
     else
       render json: { todos: data }, status: successful_status_code(headers)
     end

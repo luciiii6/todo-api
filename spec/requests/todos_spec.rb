@@ -34,6 +34,16 @@ RSpec.describe 'Todos', type: :request do
       }
     end
 
+    def valid?(body)
+      xsd = Nokogiri::XML::Schema(File.read('./spec/requests/schema_get.xsd'))
+      doc = Nokogiri::XML(body)
+
+      pp xsd.validate(doc)
+      return true if xsd.validate(doc).empty?
+
+      false
+    end
+
     before do
       2.times { post todos_path, params: params, as: :json }
     end
@@ -67,6 +77,12 @@ RSpec.describe 'Todos', type: :request do
         get_todos
         expect(response.headers['Content-Type']).to include 'application/xml'
       end
+
+      it 'has the response as the defined XML schema' do
+        get_todos
+        pp response.body
+        expect(valid?(response.body)).to be true
+      end
     end
   end
 
@@ -95,7 +111,7 @@ RSpec.describe 'Todos', type: :request do
       }
     end
 
-    def validate(body)
+    def valid?(body)
       xsd = Nokogiri::XML::Schema(File.read('./spec/requests/schema_post.xsd'))
       doc = Nokogiri::XML(body)
 
@@ -226,7 +242,7 @@ RSpec.describe 'Todos', type: :request do
 
       it 'has the response as the defined XML schema' do
         post_todos
-        expect(validate(response.body)).to be true
+        expect(valid?(response.body)).to be true
       end
     end
 
