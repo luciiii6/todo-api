@@ -90,11 +90,11 @@ class TodosController < ApplicationController
   end
 
   def render_by_accepted_format(data, headers)
-      if headers['REQUEST_METHOD'] == 'GET'
-        render_for_get(data, headers)
-      else
-        render_for_post_and_patch(data, headers)
-      end
+    if headers['REQUEST_METHOD'] == 'GET'
+      render_for_get(data, headers)
+    else
+      render_for_post_and_patch(data, headers)
+    end
   end
 
   def render_for_post_and_patch(data, headers)
