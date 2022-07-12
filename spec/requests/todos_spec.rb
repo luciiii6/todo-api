@@ -227,11 +227,35 @@ RSpec.describe 'Todos', type: :request do
         post_todos
         expect(JSON.parse(response.body)['title']).to eq 'test'
       end
-  end
+    end
+
+    context 'when request does not have the accepted types as xml or json' do
+      let(:headers) do
+        {
+          'Accept' => 'image/gif',
+          'CONTENT-TYPE' => 'application/xml'
+        }
+      end
+      let(:params) do
+        {
+          todo: {
+            title: 'test'
+          }
+        }.to_xml
+      end
+      let(:type) do
+        :xml
+      end
+
+      it 'responds with status :precondition required' do
+        post_todos
+        expect(response).to have_http_status(:precondition_required)
+      end
+    end
   end
 
   describe 'PATCH /update' do
-    subject(:patch_todos) { patch "/todos/#{todo_id}", params: params, headers: headers ,as: type }
+    subject(:patch_todos) { patch "/todos/#{todo_id}", params: params, headers: headers, as: type }
 
     let(:params) do
       {
@@ -378,7 +402,6 @@ RSpec.describe 'Todos', type: :request do
         expect(Hash.from_xml(response.body)['hash']['todo']['title']).to eq 'no more test'
       end
     end
-
   end
 
   describe 'DELETE /destroy' do
