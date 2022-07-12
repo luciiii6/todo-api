@@ -229,6 +229,7 @@ DEPENDENCIES
   dotenv-rails
   faker
   json-schema
+  nokogiri
   pg
   pry
   puma (~> 5.0)

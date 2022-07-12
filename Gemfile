@@ -50,6 +50,7 @@ group :development, :test do
   gem 'rspec-rails'
   gem 'rubocop'
   gem 'rubocop-rspec'
+  gem 'nokogiri'
 end
 
 group :development do
