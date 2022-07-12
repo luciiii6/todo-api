@@ -29,7 +29,7 @@ class TodosController < ApplicationController
     todo = Todo.find_by!(id: params[:id])
     params = parse_params(request)
     update_todo(todo, validated_params_for_update(params))
-    
+
     render_by_accepted_format(todo, request.headers)
   rescue ActiveRecord::RecordNotFound
     render json: { error: 'Todo not found' }, status: 404
