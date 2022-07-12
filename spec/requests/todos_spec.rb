@@ -16,6 +16,23 @@ RSpec.describe 'Todos', type: :request do
         }
       }
     end
+    let(:schema) do
+      {
+        'type' => 'object',
+        'required' => %w[todos],
+        'properties' => {
+          'todos' => {
+            'type' => 'array',
+            'required' => %w[title url completed],
+            'properties' => {
+              'title' => { 'type' => 'string' },
+              'url' => { 'type' => 'string' },
+              'completed' => { 'type' => 'bool' }
+            }
+          }
+        }
+      }
+    end
 
     before do
       2.times { post todos_path, params: params, as: :json }
@@ -34,6 +51,11 @@ RSpec.describe 'Todos', type: :request do
     it 'has the response content-type as json' do
       get_todos
       expect(response.headers['Content-Type']).to include 'application/json'
+    end
+
+    it 'has the body as the schema' do
+      get_todos
+      expect(JSON::Validator.validate!(schema, JSON.parse(response.body))).to be true
     end
 
     context 'when accept type needs to be as xml' do
