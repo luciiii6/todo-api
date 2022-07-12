@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require './lib/request_interpreter'
-
 class TodosController < ApplicationController
   def create
     verify_headers(request.headers)
