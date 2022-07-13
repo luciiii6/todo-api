@@ -10,8 +10,14 @@ module Types
     # TODO: remove me
     field :test_field, String, null: false,
       description: "An example field added by the generator"
+
+    field :todos, [Types::TodoType], null: false
     def test_field
       "Hello World!"
+    end
+
+    def todos
+      Todo.all
     end
   end
 end
