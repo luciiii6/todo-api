@@ -38,7 +38,6 @@ RSpec.describe 'Todos', type: :request do
       xsd = Nokogiri::XML::Schema(File.read('./spec/requests/schema_get.xsd'))
       doc = Nokogiri::XML(body)
 
-      pp xsd.validate(doc)
       return true if xsd.validate(doc).empty?
 
       false
@@ -80,7 +79,6 @@ RSpec.describe 'Todos', type: :request do
 
       it 'has the response as the defined XML schema' do
         get_todos
-        pp response.body
         expect(valid?(response.body)).to be true
       end
     end

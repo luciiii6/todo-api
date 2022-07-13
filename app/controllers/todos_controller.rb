@@ -111,7 +111,7 @@ class TodosController < ApplicationController
 
       render xml: data.map(&:attributes).collect { |elem|
                     elem.slice('title', 'url', 'completed', 'order')
-                  }.to_xml(root: 'todos'), status: successful_status_code(request.headers)
+                  }.to_xml(root: 'todos', skip_types: true), status: successful_status_code(request.headers)
     else
       render json: { todos: data }, status: successful_status_code(headers)
     end
