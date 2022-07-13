@@ -62,7 +62,7 @@ RSpec.describe 'Todos', type: :request do
       expect(response.headers['Content-Type']).to include 'application/json'
     end
 
-    it 'has the body as the schema' do
+    it 'has the body as the schema for json type' do
       get_todos
       expect(JSON::Validator.validate!(schema, JSON.parse(response.body))).to be true
     end
@@ -362,6 +362,15 @@ RSpec.describe 'Todos', type: :request do
       }
     end
 
+    def valid?(body)
+      xsd = Nokogiri::XML::Schema(File.read('./spec/requests/schema_post.xsd'))
+      doc = Nokogiri::XML(body)
+
+      return true if xsd.validate(doc).empty?
+
+      false
+    end
+
     it 'responds with status code 200' do
       patch_todos
       expect(response).to have_http_status(:ok)
@@ -501,6 +510,11 @@ RSpec.describe 'Todos', type: :request do
       it 'has the correct completed status' do
         patch_todos
         expect(Hash.from_xml(response.body)['todo']['completed']).to be true
+      end
+
+      it 'has the response as the defined XML schema' do
+        patch_todos
+        expect(valid?(response.body)).to be true
       end
     end
   end
