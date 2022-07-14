@@ -55,6 +55,7 @@ group :development, :test do
   gem 'rubocop'
   gem 'rubocop-rspec'
   gem 'sass-rails'
+  gem 'factory_bot_rails'
 end
 
 group :development do
