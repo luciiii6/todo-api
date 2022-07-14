@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe TodoApiSchema do
@@ -27,7 +29,7 @@ RSpec.describe TodoApiSchema do
     Todo.create(title: 'testsaidjwdkaskdjas', completed: false).id
   end
 
-  it 'return a list of todos' do
+  it 'return an hash that contains an array of 2 todos' do
     expect(execute_query.to_h['data']['todos'].length).to eq 2
   end
 
@@ -90,7 +92,6 @@ RSpec.describe TodoApiSchema do
         }
       }
     end
-
 
     it 'updates the todo and returns it with updated title' do
       expect(execute_query.to_h['data']['todoUpdate']['todo']['title']).to eq 'test'
