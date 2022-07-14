@@ -127,7 +127,8 @@ RSpec.describe TodoApiSchema do
     end
 
     it "deletes the todo and returns it but won't find it anymore in database" do
-      expect(Todo.find(execute_query.to_h['data']['todoDelete']['todo']['id'])).to raise_exception ActiveRecord::RecordNotFound
+      expect { Todo.find(execute_query.to_h['data']['todoDelete']['todo']['id']) }
+        .to raise_exception(ActiveRecord::RecordNotFound)
     end
   end
 end
