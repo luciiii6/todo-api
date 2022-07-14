@@ -6,20 +6,6 @@ module Types
     include GraphQL::Types::Relay::HasNodeField
     include GraphQL::Types::Relay::HasNodesField
 
-    # Add root-level fields here.
-    # They will be entry points for queries on your schema.
-
-    # TODO: remove me
-    field :test_field, String, null: false,
-                               description: 'An example field added by the generator'
-
-    field :todos, [Types::TodoType], null: false
-    def test_field
-      'Hello World!'
-    end
-
-    def todos
-      Todo.all
-    end
+    field :todos, resolver: Resolvers::Todos
   end
 end
