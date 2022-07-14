@@ -41,8 +41,10 @@ RSpec.describe TodoApiSchema do
       mutation ($input: TodoCreateInput!) {
         todoCreate(input: $input) {
           todo {
+            id
             title
             completed
+            url
           }
         }
       }
@@ -60,8 +62,13 @@ RSpec.describe TodoApiSchema do
       }
     end
 
-    it 'creates the todo and returns it' do
+    it 'creates the todo and returns it with the correct title' do
       expect(execute_query.to_h['data']['todoCreate']['todo']['title']).to eq 'test'
+    end
+
+    it 'creates the todo and returns it with url that contains the id' do
+      hash = execute_query.to_h['data']['todoCreate']['todo']
+      expect(hash['url'].split('/')[-1]).to eq hash['id']
     end
   end
 

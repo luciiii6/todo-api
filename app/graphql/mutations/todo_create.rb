@@ -2,6 +2,10 @@
 
 module Mutations
   class TodoCreate < BaseMutation
+    include ActionView::Helpers
+    include ActionDispatch::Routing
+    include Rails.application.routes.url_helpers
+
     description 'Creates a new todo'
 
     field :todo, Types::TodoType, null: false
@@ -13,7 +17,7 @@ module Mutations
 
       raise GraphQL::ExecutionError.new 'Error creating todo', extensions: todo.errors.to_hash unless todo.save
 
-      todo.url = 'test'
+      todo.url = todo_url(todo)
       todo.save
 
       { todo: todo }
