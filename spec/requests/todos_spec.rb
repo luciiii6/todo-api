@@ -4,8 +4,11 @@ require 'rails_helper'
 
 RSpec.describe 'Todos', type: :request do
   describe 'GET /index' do
-    subject(:get_todos) { get todos_path }
+    subject(:get_todos) { get todos_path, headers: headers }
 
+    let(:headers) do
+      { 'Accept' => 'application/json' }
+    end
     let(:params) do
       {
         todo: {
@@ -13,9 +16,35 @@ RSpec.describe 'Todos', type: :request do
         }
       }
     end
+    let(:schema) do
+      {
+        'type' => 'object',
+        'required' => %w[todos],
+        'properties' => {
+          'todos' => {
+            'type' => 'array',
+            'required' => %w[title url completed],
+            'properties' => {
+              'title' => { 'type' => 'string' },
+              'url' => { 'type' => 'string' },
+              'completed' => { 'type' => 'bool' }
+            }
+          }
+        }
+      }
+    end
+
+    def valid?(body)
+      xsd = Nokogiri::XML::Schema(File.read('./spec/requests/todo_schema_get.xsd'))
+      doc = Nokogiri::XML(body)
+
+      return true if xsd.validate(doc).empty?
+
+      false
+    end
 
     before do
-      2.times { post todos_path, params: params }
+      2.times { post todos_path, params: params, as: :json }
     end
 
     it 'returns status 200' do
@@ -25,12 +54,69 @@ RSpec.describe 'Todos', type: :request do
 
     it 'returns 2 todos' do
       get_todos
-      expect(JSON.parse(response.body, symbolize_names: true).length).to eq 2
+      expect(JSON.parse(response.body, symbolize_names: true)[:todos].length).to eq 2
+    end
+
+    it 'has the response content-type as json' do
+      get_todos
+      expect(response.headers['Content-Type']).to include 'application/json'
+    end
+
+    it 'has the body as the schema for json type' do
+      get_todos
+      expect(JSON::Validator.validate!(schema, JSON.parse(response.body))).to be true
+    end
+
+    context 'when accept type needs to be as xml' do
+      let(:headers) do
+        { 'Accept' => 'application/xml' }
+      end
+
+      it 'responds with body as xml' do
+        get_todos
+        expect(response.headers['Content-Type']).to include 'application/xml'
+      end
+
+      it 'has the response as the defined XML schema' do
+        get_todos
+        expect(valid?(response.body)).to be true
+      end
     end
   end
 
   describe 'POST /create' do
-    subject(:post_todos) { post todos_path, params: params }
+    subject(:post_todos) { post todos_path, params: params, headers: headers, as: type }
+
+    let(:type) do
+      :json
+    end
+
+    let(:schema) do
+      {
+        'type' => 'object',
+        'required' => %w[todo],
+        'properties' => {
+          'todo' => {
+            'type' => 'object',
+            'required' => %w[title url completed],
+            'properties' => {
+              'title' => { 'type' => 'string' },
+              'url' => { 'type' => 'string' },
+              'completed' => { 'type' => 'bool' }
+            }
+          }
+        }
+      }
+    end
+
+    def valid?(body)
+      xsd = Nokogiri::XML::Schema(File.read('./spec/requests/todo_schema_post.xsd'))
+      doc = Nokogiri::XML(body)
+
+      return true if xsd.validate(doc).empty?
+
+      false
+    end
 
     context 'when request has valid parameters' do
       let(:params) do
@@ -52,13 +138,18 @@ RSpec.describe 'Todos', type: :request do
 
       it 'has the same title with the request' do
         post_todos
-        expect(JSON.parse(response.body, symbolize_names: true)[:title]).to eq('test')
+        expect(JSON.parse(response.body, symbolize_names: true)[:todo][:title]).to eq('test')
       end
 
       it 'generates url for todo with the id contained' do
         post_todos
-        response_json = JSON.parse(response.body, symbolize_names: true)
-        expect(response_json[:url]).to include(response_json[:id].to_s).once
+        response_json = JSON.parse(response.body, symbolize_names: true)[:todo]
+        expect(Todo.find(response_json[:url].split('/')[-1])).to be_an_instance_of(Todo)
+      end
+
+      it 'responds with a valid json schema' do
+        post_todos
+        expect(JSON::Validator.validate!(schema, JSON.parse(response.body))).to be true
       end
     end
 
@@ -74,7 +165,7 @@ RSpec.describe 'Todos', type: :request do
 
       it 'has the correct order number' do
         post_todos
-        expect(JSON.parse(response.body, symbolize_names: true)[:order]).to eq 10
+        expect(JSON.parse(response.body, symbolize_names: true)[:todo][:order]).to eq 10
       end
     end
 
@@ -122,10 +213,122 @@ RSpec.describe 'Todos', type: :request do
         expect(response).to have_http_status(:bad_request)
       end
     end
+
+    context 'when request is json and accepts xml as response' do
+      let(:headers) do
+        {
+          'Accept' => 'application/xml'
+        }
+      end
+      let(:params) do
+        {
+          todo: {
+            title: 'test'
+          }
+        }
+      end
+
+      it 'responds the same as the accept type (xml)' do
+        post_todos
+        expect(response.headers['Content-Type']).to include 'application/xml'
+      end
+
+      it 'has the correct title' do
+        post_todos
+        expect(Hash.from_xml(response.body)['todo']['title']).to eq 'test'
+      end
+
+      it 'has the response as the defined XML schema' do
+        post_todos
+        expect(valid?(response.body)).to be true
+      end
+    end
+
+    context 'when request is xml and accepts xml as response' do
+      let(:headers) do
+        {
+          'Accept' => 'application/xml',
+          'CONTENT-TYPE' => 'application/xml'
+        }
+      end
+      let(:params) do
+        {
+          todo: {
+            title: 'test'
+          }
+        }.to_xml
+      end
+      let(:type) do
+        :xml
+      end
+
+      it 'responds the same as the accept type (xml)' do
+        post_todos
+        expect(response.headers['Content-Type']).to include 'application/xml'
+      end
+
+      it 'has the correct title' do
+        post_todos
+        expect(Hash.from_xml(response.body)['todo']['title']).to eq 'test'
+      end
+    end
+
+    context 'when request is xml and accepts json as response' do
+      let(:headers) do
+        {
+          'Accept' => 'application/json',
+          'CONTENT-TYPE' => 'application/xml'
+        }
+      end
+      let(:params) do
+        {
+          todo: {
+            title: 'test'
+          }
+        }.to_xml
+      end
+      let(:type) do
+        :xml
+      end
+
+      it 'responds the same as the accept type (json)' do
+        post_todos
+        expect(response.headers['Content-Type']).to include 'application/json'
+      end
+
+      it 'has the correct title' do
+        post_todos
+        expect(JSON.parse(response.body)['todo']['title']).to eq 'test'
+      end
+    end
+
+    context 'when request does not have the accepted types as xml or json' do
+      let(:headers) do
+        {
+          'Accept' => 'image/gif',
+          'CONTENT-TYPE' => 'application/xml'
+        }
+      end
+      let(:params) do
+        {
+          todo: {
+            title: 'test'
+          }
+        }.to_xml
+      end
+      let(:type) do
+        :xml
+      end
+
+      it 'responds with json as default' do
+        post_todos
+        expect(response.headers['CONTENT-TYPE']).to include('application/json')
+      end
+    end
   end
 
   describe 'PATCH /update' do
-    subject(:patch_todos) { patch "/todos/#{todo_id}", params: params, as: :json }
+    subject(:patch_todos) { patch "/todos/#{todo_id}", params: params, headers: headers, as: type }
 
     let(:params) do
       {
@@ -136,7 +339,36 @@ RSpec.describe 'Todos', type: :request do
       }
     end
     let(:todo_id) do
-      Todo.create(title: 'test', completed: false).id
+      Todo.create(title: 'test', completed: false, url: 'test/23').id
+    end
+    let(:type) do
+      :json
+    end
+    let(:schema) do
+      {
+        'type' => 'object',
+        'required' => %w[todo],
+        'properties' => {
+          'todo' => {
+            'type' => 'object',
+            'required' => %w[title url completed],
+            'properties' => {
+              'title' => { 'type' => 'string' },
+              'url' => { 'type' => 'string' },
+              'completed' => { 'type' => 'bool' }
+            }
+          }
+        }
+      }
+    end
+
+    def valid?(body)
+      xsd = Nokogiri::XML::Schema(File.read('./spec/requests/todo_schema_post.xsd'))
+      doc = Nokogiri::XML(body)
+
+      return true if xsd.validate(doc).empty?
+
+      false
     end
 
     it 'responds with status code 200' do
@@ -146,12 +378,17 @@ RSpec.describe 'Todos', type: :request do
 
     it 'has the updated title' do
       patch_todos
-      expect(JSON.parse(response.body, symbolize_names: true)[:title]).to eq 'testeeeed'
+      expect(JSON.parse(response.body, symbolize_names: true)[:todo][:title]).to eq 'testeeeed'
     end
 
     it 'has the updated completed status' do
       patch_todos
-      expect(JSON.parse(response.body, symbolize_names: true)[:completed]).to be true
+      expect(JSON.parse(response.body, symbolize_names: true)[:todo][:completed]).to be true
+    end
+
+    it 'responds with a valid json schema' do
+      patch_todos
+      expect(JSON::Validator.validate!(schema, JSON.parse(response.body))).to be true
     end
 
     context 'when marking the todo as completed as boolean' do
@@ -200,7 +437,7 @@ RSpec.describe 'Todos', type: :request do
 
       it 'has the updated order number' do
         patch_todos
-        expect(JSON.parse(response.body, symbolize_names: true)[:order]).to eq 22
+        expect(JSON.parse(response.body, symbolize_names: true)[:todo][:order]).to eq 22
       end
     end
 
@@ -212,6 +449,72 @@ RSpec.describe 'Todos', type: :request do
       it 'responds with status code 404' do
         patch_todos
         expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context 'when request is json and accepts xml as response' do
+      let(:headers) do
+        {
+          'Accept' => 'application/xml',
+          'CONTENT-TYPE' => 'application/json'
+        }
+      end
+      let(:params) do
+        {
+          todo: {
+            title: 'no more test'
+          }
+        }
+      end
+
+      it 'responds the same as the accept type (xml)' do
+        patch_todos
+        expect(response.headers['Content-Type']).to include 'application/xml'
+      end
+
+      it 'has the correct title' do
+        patch_todos
+        expect(Hash.from_xml(response.body)['todo']['title']).to eq 'no more test'
+      end
+    end
+
+    context 'when request is xml and accepts xml as response' do
+      let(:headers) do
+        {
+          'Accept' => 'application/xml',
+          'CONTENT-TYPE' => 'application/xml'
+        }
+      end
+      let(:params) do
+        {
+          todo: {
+            title: 'no more test',
+            completed: true
+          }
+        }.to_xml
+      end
+      let(:type) do
+        :xml
+      end
+
+      it 'responds the same as the accept type (xml)' do
+        patch_todos
+        expect(response.headers['Content-Type']).to include 'application/xml'
+      end
+
+      it 'has the correct title' do
+        patch_todos
+        expect(Hash.from_xml(response.body)['todo']['title']).to eq 'no more test'
+      end
+
+      it 'has the correct completed status' do
+        patch_todos
+        expect(Hash.from_xml(response.body)['todo']['completed']).to be true
+      end
+
+      it 'has the response as the defined XML schema' do
+        patch_todos
+        expect(valid?(response.body)).to be true
       end
     end
   end
