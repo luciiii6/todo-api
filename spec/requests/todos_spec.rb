@@ -44,7 +44,7 @@ RSpec.describe 'Todos', type: :request do
     end
 
     before do
-      2.times { post todos_path, params: params, as: :json }
+      create_list(:todo, 2)
     end
 
     it 'returns status 200' do
@@ -546,7 +546,7 @@ RSpec.describe 'Todos', type: :request do
     subject(:delete_todos) { delete '/todos' }
 
     before do
-      3.times { create(:todo) }
+      create_list(:todo, 3)
     end
 
     it 'responds with status code 200' do
