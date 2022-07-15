@@ -8,7 +8,7 @@ class TodoPresenter
   def to_xml
     @todo.to_xml(root: 'todo')
   end
-  
+
   def to_h
     @todo
   end
