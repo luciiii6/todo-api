@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require './app/presenters/todo_presenter'
+
 class TodosController < ApplicationController
   def create
     params = parse_params(request)
@@ -99,10 +101,10 @@ class TodosController < ApplicationController
 
   def render_for_post_and_patch(data, headers)
     if headers['Accept'].include?('application/xml')
-      render xml: data.attributes.slice('title', 'url', 'completed', 'order').to_xml(root: 'todo'),
+      render xml: TodoPresenter.new(data).to_xml,
              status: successful_status_code(headers)
     else
-      render json: { todo: data }, status: successful_status_code(headers)
+      render json: { todo: TodoPresenter.new(data).to_h }, status: successful_status_code(headers)
     end
   end
 
@@ -110,7 +112,7 @@ class TodosController < ApplicationController
     if headers['Accept'].include?('application/xml')
 
       render xml: data.map(&:attributes).collect { |elem|
-                    elem.slice('title', 'url', 'completed', 'order')
+                    TodoPresenter.new(elem).to_h
                   }.to_xml(root: 'todos', skip_types: true), status: successful_status_code(request.headers)
     else
       render json: { todos: data }, status: successful_status_code(headers)
