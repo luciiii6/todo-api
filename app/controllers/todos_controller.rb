@@ -115,7 +115,9 @@ class TodosController < ApplicationController
                     TodoPresenter.new(elem).to_h
                   }.to_xml(root: 'todos', skip_types: true), status: successful_status_code(request.headers)
     else
-      render json: { todos: data }, status: successful_status_code(headers)
+      render json: { todos: data.collect do |elem|
+        TodoPresenter.new(elem).to_h
+      end }, status: successful_status_code(headers)
     end
   end
 
