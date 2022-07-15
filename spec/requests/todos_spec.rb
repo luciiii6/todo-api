@@ -144,7 +144,7 @@ RSpec.describe 'Todos', type: :request do
       it 'generates url for todo with the id contained' do
         post_todos
         response_json = JSON.parse(response.body, symbolize_names: true)[:todo]
-        expect(response_json[:url]).to include(response_json[:id].to_s).once
+        expect(Todo.find(response_json[:url].split('/')[-1])).to be_an_instance_of(Todo)
       end
 
       it 'responds with a valid json schema' do
