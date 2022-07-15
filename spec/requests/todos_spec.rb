@@ -35,7 +35,7 @@ RSpec.describe 'Todos', type: :request do
     end
 
     def valid?(body)
-      xsd = Nokogiri::XML::Schema(File.read('./spec/requests/schema_get.xsd'))
+      xsd = Nokogiri::XML::Schema(File.read('./spec/requests/todo_schema_get.xsd'))
       doc = Nokogiri::XML(body)
 
       return true if xsd.validate(doc).empty?
@@ -110,7 +110,7 @@ RSpec.describe 'Todos', type: :request do
     end
 
     def valid?(body)
-      xsd = Nokogiri::XML::Schema(File.read('./spec/requests/schema_post.xsd'))
+      xsd = Nokogiri::XML::Schema(File.read('./spec/requests/todo_schema_post.xsd'))
       doc = Nokogiri::XML(body)
 
       return true if xsd.validate(doc).empty?
@@ -363,7 +363,7 @@ RSpec.describe 'Todos', type: :request do
     end
 
     def valid?(body)
-      xsd = Nokogiri::XML::Schema(File.read('./spec/requests/schema_post.xsd'))
+      xsd = Nokogiri::XML::Schema(File.read('./spec/requests/todo_schema_post.xsd'))
       doc = Nokogiri::XML(body)
 
       return true if xsd.validate(doc).empty?
