@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 require './app/presenters/todo_presenter'
+require './app/helpers/todo_handler'
+require './app/helpers/todo_validator'
 
 class TodosController < ApplicationController
   def create
     params = parse_params(request)
 
-    render_by_method(create_todo(validated_params_for_create(params)), request.headers)
+    render_by_method(TodoHandler.create(TodoValidator.validate_params_for_create(params)), request.headers)
   rescue ActionController::ParameterMissing
     render json: { error: 'Content missing' }, status: 400
   end
@@ -16,16 +18,14 @@ class TodosController < ApplicationController
   end
 
   def show
-    todo = Todo.find_by!(id: params[:id])
-    render json: todo, status: :ok
+    render json: TodoHandler.find(params[:id]), status: :ok
   rescue ActiveRecord::RecordNotFound
     render json: { error: 'Todo not found' }, status: 404
   end
 
   def update
-    todo = Todo.find_by!(id: params[:id])
-    params = parse_params(request)
-    update_todo(todo, validated_params_for_update(params))
+    body_parameters = parse_params(request)
+    todo = TodoHandler.update(params[:id], TodoValidator.validate_params_for_update(body_parameters))
 
     render_by_method(todo, request.headers)
   rescue ActiveRecord::RecordNotFound
@@ -35,8 +35,7 @@ class TodosController < ApplicationController
   end
 
   def destroy
-    todo = Todo.find_by!(id: params[:id])
-    todo.destroy
+    TodoHandler.delete(params[:id])
 
     render json: {}, status: successful_status_code(request.headers)
   rescue ActiveRecord::RecordNotFound
@@ -44,45 +43,14 @@ class TodosController < ApplicationController
   end
 
   def destroy_all
-    Todo.destroy_all
+    TodoHandler.delete_all
     render json: {}, status: successful_status_code(request.headers)
   end
 
   private
 
   def todo_params
-    params.require(:todo).permit(:title, :completed, :order)
-  end
-
-  def validated_params_for_create(params)
-    return params if params.key?('title') && params['title'] != '' && !params.key?('completed')
-    return params if params['completed'] == true || params['completed'] == false
-
-    raise ActionController::ParameterMissing, 'Wrong parameters for request'
-  end
-
-  def validated_params_for_update(params)
-    if params.empty? || params['completed'].is_a?(String)
-      raise ActionController::ParameterMissing,
-            'Wrong parameters for request'
-    end
-
-    params
-  end
-
-  def create_todo(validated_params)
-    todo = Todo.create(title: validated_params['title'], completed: false,
-                       order: validated_params['order'])
-    todo.url = url_for(todo)
-    todo.save!
-    todo
-  end
-
-  def update_todo(todo, params)
-    todo.title = params['title'] if params['title']
-    todo.completed = params['completed'] if params.key?('completed')
-    todo.order = params['order'] if params['order']
-    todo.save!
+    params.require(:todo).permit(:id, :title, :completed, :order)
   end
 
   def successful_status_code(headers)

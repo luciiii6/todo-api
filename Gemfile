@@ -36,6 +36,8 @@ gem 'bootsnap', require: false
 
 gem 'rack-cors'
 
+gem 'graphql'
+
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 # gem "image_processing", "~> 1.2"
 
@@ -45,12 +47,15 @@ gem 'rack-cors'
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem 'debug', platforms: %i[mri mingw x64_mingw]
+  gem 'factory_bot_rails'
   gem 'faker'
+  gem 'graphiql-rails'
   gem 'json-schema'
   gem 'nokogiri'
   gem 'rspec-rails'
   gem 'rubocop'
   gem 'rubocop-rspec'
+  gem 'sass-rails'
 end
 
 group :development do

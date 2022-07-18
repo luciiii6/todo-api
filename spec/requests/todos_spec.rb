@@ -44,7 +44,7 @@ RSpec.describe 'Todos', type: :request do
     end
 
     before do
-      2.times { post todos_path, params: params, as: :json }
+      create_list(:todo, 2)
     end
 
     it 'returns status 200' do
@@ -339,7 +339,7 @@ RSpec.describe 'Todos', type: :request do
       }
     end
     let(:todo_id) do
-      Todo.create(title: 'test', completed: false, url: 'test/23').id
+      create(:todo)[:id]
     end
     let(:type) do
       :json
@@ -365,7 +365,6 @@ RSpec.describe 'Todos', type: :request do
     def valid?(body)
       xsd = Nokogiri::XML::Schema(File.read('./spec/requests/todo_schema_post.xsd'))
       doc = Nokogiri::XML(body)
-
       return true if xsd.validate(doc).empty?
 
       false
@@ -523,7 +522,7 @@ RSpec.describe 'Todos', type: :request do
     subject(:delete_todo) { delete "/todos/#{todo_id}" }
 
     let(:todo_id) do
-      Todo.create(title: 'test', completed: false).id
+      create(:todo)[:id]
     end
 
     it 'responds with status code 200' do
@@ -547,7 +546,7 @@ RSpec.describe 'Todos', type: :request do
     subject(:delete_todos) { delete '/todos' }
 
     before do
-      3.times { Todo.create(title: 'test', completed: false) }
+      create_list(:todo, 3)
     end
 
     it 'responds with status code 200' do
