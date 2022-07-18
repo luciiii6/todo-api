@@ -4,7 +4,7 @@ class TodoHandler
   class << self
     include Rails.application.routes.url_helpers
 
-    def create_todo(validated_params)
+    def create(validated_params)
       todo = Todo.create(title: validated_params['title'], completed: false,
                          order: validated_params['order'])
       todo.url = url_for(todo)
@@ -12,11 +12,11 @@ class TodoHandler
       todo
     end
 
-    def update_todo(todo, params)
-      todo.title = params['title'] if params['title']
-      todo.completed = params['completed'] if params.key?('completed')
-      todo.order = params['order'] if params['order']
-      todo.save!
+    def update(id, validated_params)
+      todo = Todo.find(id)
+      todo.update!(**validated_params)
+
+      todo
     end
   end
 end
