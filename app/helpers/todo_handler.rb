@@ -20,7 +20,7 @@ class TodoHandler
     end
 
     def find(id)
-      todo = Todo.find(id)
+      Todo.find(id)
     end
 
     def delete(id)
