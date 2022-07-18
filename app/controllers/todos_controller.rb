@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 require './app/presenters/todo_presenter'
+require './app/helpers/todo_handler'
+require './app/helpers/validator'
 
 class TodosController < ApplicationController
   def create
     params = parse_params(request)
 
-    render_by_method(create_todo(validated_params_for_create(params)), request.headers)
+    render_by_method(TodoHandler.create_todo(Validator.validated_params_for_create(params)), request.headers)
   rescue ActionController::ParameterMissing
     render json: { error: 'Content missing' }, status: 400
   end
@@ -25,7 +27,7 @@ class TodosController < ApplicationController
   def update
     todo = Todo.find_by!(id: params[:id])
     params = parse_params(request)
-    update_todo(todo, validated_params_for_update(params))
+    TodoHandler.update_todo(todo, Validator.validated_params_for_update(params))
 
     render_by_method(todo, request.headers)
   rescue ActiveRecord::RecordNotFound
@@ -52,37 +54,6 @@ class TodosController < ApplicationController
 
   def todo_params
     params.require(:todo).permit(:title, :completed, :order)
-  end
-
-  def validated_params_for_create(params)
-    return params if params.key?('title') && params['title'] != '' && !params.key?('completed')
-    return params if params['completed'] == true || params['completed'] == false
-
-    raise ActionController::ParameterMissing, 'Wrong parameters for request'
-  end
-
-  def validated_params_for_update(params)
-    if params.empty? || params['completed'].is_a?(String)
-      raise ActionController::ParameterMissing,
-            'Wrong parameters for request'
-    end
-
-    params
-  end
-
-  def create_todo(validated_params)
-    todo = Todo.create(title: validated_params['title'], completed: false,
-                       order: validated_params['order'])
-    todo.url = url_for(todo)
-    todo.save!
-    todo
-  end
-
-  def update_todo(todo, params)
-    todo.title = params['title'] if params['title']
-    todo.completed = params['completed'] if params.key?('completed')
-    todo.order = params['order'] if params['order']
-    todo.save!
   end
 
   def successful_status_code(headers)

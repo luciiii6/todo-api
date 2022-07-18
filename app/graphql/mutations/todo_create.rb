@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
+require './app/helpers/todo_handler'
+require './app/helpers/validator'
+
 module Mutations
   class TodoCreate < BaseMutation
-    include ActionView::Helpers
-    include ActionDispatch::Routing
-    include Rails.application.routes.url_helpers
-
     description 'Creates a new todo'
 
     field :todo, Types::TodoType, null: false
@@ -13,12 +12,7 @@ module Mutations
     argument :todo_input, Types::TodoInputType, required: true
 
     def resolve(todo_input:)
-      todo = Todo.create(title: todo_input[:title], completed: false)
-
-      raise GraphQL::ExecutionError.new 'Error creating todo', extensions: todo.errors.to_hash unless todo.save
-
-      todo.url = todo_url(todo)
-      todo.save
+      todo = TodoHandler.create_todo(Validator.validated_params_for_create(todo_input.to_h.stringify_keys))
 
       { todo: todo }
     end

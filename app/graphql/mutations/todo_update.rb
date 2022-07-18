@@ -11,9 +11,7 @@ module Mutations
 
     def resolve(id:, todo_input:)
       todo = ::Todo.find(id)
-      unless todo.update(**todo_input)
-        raise GraphQL::ExecutionError.new 'Error updating todo', extensions: todo.errors.to_hash
-      end
+      TodoHandler.update_todo(todo, Validator.validated_params_for_update(todo_input.to_h.stringify_keys))
 
       { todo: todo }
     end
