@@ -252,11 +252,13 @@ RSpec.describe 'Todos', type: :request do
         }
       end
       let(:params) do
-        {
+        h = {
           todo: {
             title: 'test'
           }
-        }.to_xml
+        }
+
+        h[h.keys.first].to_xml(root: h.keys.first)
       end
       let(:type) do
         :xml
@@ -281,11 +283,13 @@ RSpec.describe 'Todos', type: :request do
         }
       end
       let(:params) do
-        {
+        h = {
           todo: {
             title: 'test'
           }
-        }.to_xml
+        }
+
+        h[h.keys.first].to_xml(root: h.keys.first)
       end
       let(:type) do
         :xml
@@ -310,11 +314,13 @@ RSpec.describe 'Todos', type: :request do
         }
       end
       let(:params) do
-        {
+        h = {
           todo: {
             title: 'test'
           }
-        }.to_xml
+        }
+
+        h[h.keys.first].to_xml(root: h.keys.first)
       end
       let(:type) do
         :xml
@@ -485,12 +491,14 @@ RSpec.describe 'Todos', type: :request do
         }
       end
       let(:params) do
-        {
+        h = {
           todo: {
             title: 'no more test',
             completed: true
           }
-        }.to_xml
+        }
+
+        h[h.keys.first].to_xml(root: h.keys.first)
       end
       let(:type) do
         :xml
