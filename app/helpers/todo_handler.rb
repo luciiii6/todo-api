@@ -18,5 +18,18 @@ class TodoHandler
 
       todo
     end
+
+    def find(id)
+      todo = Todo.find(id)
+    end
+
+    def delete(id)
+      todo = Todo.find(id)
+      todo.destroy
+    end
+
+    def delete_all
+      Todo.destroy_all
+    end
   end
 end
