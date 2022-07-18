@@ -18,8 +18,7 @@ class TodosController < ApplicationController
   end
 
   def show
-    todo = Todo.find_by!(id: params[:id])
-    render json: todo, status: :ok
+    render json: TodoHandler.find(params[:id]), status: :ok
   rescue ActiveRecord::RecordNotFound
     render json: { error: 'Todo not found' }, status: 404
   end
@@ -36,8 +35,7 @@ class TodosController < ApplicationController
   end
 
   def destroy
-    todo = Todo.find_by!(id: params[:id])
-    todo.destroy
+    TodoHandler.delete(params[:id])
 
     render json: {}, status: successful_status_code(request.headers)
   rescue ActiveRecord::RecordNotFound
@@ -45,7 +43,7 @@ class TodosController < ApplicationController
   end
 
   def destroy_all
-    Todo.destroy_all
+    TodoHandler.delete_all
     render json: {}, status: successful_status_code(request.headers)
   end
 
