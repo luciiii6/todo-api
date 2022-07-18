@@ -2,13 +2,13 @@
 
 require './app/presenters/todo_presenter'
 require './app/helpers/todo_handler'
-require './app/helpers/validator'
+require './app/helpers/todo_validator'
 
 class TodosController < ApplicationController
   def create
     params = parse_params(request)
 
-    render_by_method(TodoHandler.create_todo(Validator.validated_params_for_create(params)), request.headers)
+    render_by_method(TodoHandler.create(TodoValidator.validate_params_for_create(params)), request.headers)
   rescue ActionController::ParameterMissing
     render json: { error: 'Content missing' }, status: 400
   end
@@ -25,9 +25,8 @@ class TodosController < ApplicationController
   end
 
   def update
-    todo = Todo.find_by!(id: params[:id])
-    params = parse_params(request)
-    TodoHandler.update_todo(todo, Validator.validated_params_for_update(params))
+    body_parameters = parse_params(request)
+    todo = TodoHandler.update(params[:id], TodoValidator.validate_params_for_update(body_parameters))
 
     render_by_method(todo, request.headers)
   rescue ActiveRecord::RecordNotFound
@@ -53,7 +52,7 @@ class TodosController < ApplicationController
   private
 
   def todo_params
-    params.require(:todo).permit(:title, :completed, :order)
+    params.require(:todo).permit(:id, :title, :completed, :order)
   end
 
   def successful_status_code(headers)

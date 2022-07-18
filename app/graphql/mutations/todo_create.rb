@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require './app/helpers/todo_handler'
-require './app/helpers/validator'
+require './app/helpers/todo_validator'
 
 module Mutations
   class TodoCreate < BaseMutation
@@ -12,7 +12,7 @@ module Mutations
     argument :todo_input, Types::TodoInputType, required: true
 
     def resolve(todo_input:)
-      todo = TodoHandler.create_todo(Validator.validated_params_for_create(todo_input.to_h.stringify_keys))
+      todo = TodoHandler.create(TodoValidator.validate_params_for_create(todo_input.to_h.stringify_keys))
 
       { todo: todo }
     end
