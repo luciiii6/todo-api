@@ -7,9 +7,11 @@ module Types
 
   class TodosConnection < GraphQL::Types::Relay::BaseConnection
     field :total_count, Integer, null: false
+
     def total_count
       object.nodes.size
     end
+
     edge_type(TodosEdgeType)
   end
 end
