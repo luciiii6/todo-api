@@ -115,7 +115,6 @@ RSpec.describe 'Todos', type: :request do
       end
     end
 
-
     context 'when requesting with after: cursor of the first todo' do
       let(:first_todo) { CursorEncoder.encode(Todo.all.order(:created_at).first.id.to_s) }
       let(:params) { { page: { size: 3, after: first_todo } } }

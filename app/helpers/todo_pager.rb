@@ -26,7 +26,7 @@ class TodoPager
       get_todos(id, page_details)
     end
 
-    def get_metadata(todos, page_details)
+    def get_metadata(todos, _page_details)
       {
         firstCursor: CursorEncoder.encode(todos[0].id.to_s),
         lastCursor: CursorEncoder.encode(todos[-1].id.to_s),
@@ -60,10 +60,8 @@ class TodoPager
                           Todo.find(id).created_at).first(page_details['size'].to_i)
       end
 
-      if page_details.key?('before')
-        Todo.where('created_at > ?',
-                   Todo.find(id).created_at).last(page_details['size'].to_i)
-      end
+      Todo.where('created_at > ?',
+                 Todo.find(id).created_at).last(page_details['size'].to_i)
     end
   end
 end
