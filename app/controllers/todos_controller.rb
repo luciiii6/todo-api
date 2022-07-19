@@ -14,7 +14,12 @@ class TodosController < ApplicationController
   end
 
   def index
-    render_by_method(Todo.all, request.headers)
+    return render_by_method(Todo.all, request.headers) unless params.key?(:page)
+
+    data = TodoPager.get_page(params[:page])
+    render json: data, status: :ok
+  rescue PageParametersValidator::PageError => e
+    render json: { errors: e.message }, status: 400
   end
 
   def show
