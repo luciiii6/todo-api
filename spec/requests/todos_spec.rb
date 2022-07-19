@@ -491,18 +491,10 @@ RSpec.describe 'Todos', type: :request do
         }
       end
       let(:params) do
-        h = {
-          todo: {
-            title: 'no more test',
-            completed: true
-          }
-        }
+        { title: 'no more test', completed: true }.to_xml(root: :todo)
+      end
 
-        h[h.keys.first].to_xml(root: h.keys.first)
-      end
-      let(:type) do
-        :xml
-      end
+      let(:type) { :xml }
 
       it 'responds the same as the accept type (xml)' do
         patch_todos
