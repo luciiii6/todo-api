@@ -4,18 +4,12 @@ require 'rails_helper'
 
 RSpec.describe 'Todos', type: :request do
   describe 'GET /index' do
-    subject(:get_todos) { get todos_path, headers: headers }
+    subject(:get_todos) { get todos_path, headers: headers, params: params }
 
     let(:headers) do
       { 'Accept' => 'application/json' }
     end
-    let(:params) do
-      {
-        todo: {
-          title: 'test'
-        }
-      }
-    end
+    let(:params) {}
     let(:schema) do
       {
         'type' => 'object',
@@ -44,7 +38,7 @@ RSpec.describe 'Todos', type: :request do
     end
 
     before do
-      create_list(:todo, 2)
+      create_list(:todo, 25)
     end
 
     it 'returns status 200' do
@@ -54,7 +48,7 @@ RSpec.describe 'Todos', type: :request do
 
     it 'returns 2 todos' do
       get_todos
-      expect(JSON.parse(response.body, symbolize_names: true)[:todos].length).to eq 2
+      expect(JSON.parse(response.body, symbolize_names: true)[:todos].length).to eq 25
     end
 
     it 'has the response content-type as json' do
@@ -80,6 +74,55 @@ RSpec.describe 'Todos', type: :request do
       it 'has the response as the defined XML schema' do
         get_todos
         expect(valid?(response.body)).to be true
+      end
+    end
+
+    context 'when requesting with pagination' do
+      let(:params) { { page: { size: 20 } } }
+
+      it 'returns a list of todos within a size' do
+        get_todos
+        expect(JSON.parse(response.body)['todos'].length).to eq 20
+      end
+    end
+
+    context 'when requesting with wrong pagination parameters' do
+      let(:params) { { page: { size: 20, after: 'dsad', before: ' dasd' } } }
+
+      it 'respond with error' do
+        get_todos
+        expect(JSON.parse(response.body)['errors']).to eq "Can't have before and after in the same request"
+      end
+    end
+
+    context 'when requesting with good cursor' do
+      let(:todos) { create_list(:todo, 5) }
+      let(:params) { { page: { size: 3, after: CursorEncoder.encode(todos[0].id.to_s) } } }
+
+      it 'respond with a list of 3 todos' do
+        get_todos
+        expect(JSON.parse(response.body)['todos'].length).to eq 3
+      end
+
+      it 'responds with correct metadata(hasNextPage)' do
+        get_todos
+        expect(JSON.parse(response.body)['metadata']['hasNextPage']).to be true
+      end
+
+      it 'responds with correct metadata(hasPreviousPage)' do
+        get_todos
+        expect(JSON.parse(response.body)['metadata']['hasPreviousPage']).to be true
+      end
+    end
+
+
+    context 'when requesting with after: cursor of the first todo' do
+      let(:first_todo) { CursorEncoder.encode(Todo.all.order(:created_at).first.id.to_s) }
+      let(:params) { { page: { size: 3, after: first_todo } } }
+
+      it 'respond with previous page as true' do
+        get_todos
+        expect(JSON.parse(response.body)['metadata']['hasPreviousPage']).to be true
       end
     end
   end
