@@ -90,7 +90,7 @@ class TodosController < ApplicationController
   end
 
   def parse_params(request)
-    return Hash.from_xml(request.raw_post)['hash']['todo'] if request.headers['CONTENT-TYPE'].include? 'application/xml'
+    return Hash.from_xml(request.raw_post)['todo'] if request.headers['CONTENT-TYPE'].include? 'application/xml'
 
     todo_params
   end

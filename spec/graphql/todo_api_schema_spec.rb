@@ -8,10 +8,12 @@ RSpec.describe TodoApiSchema do
   let(:query_string) do
     <<-GRAPHQL
       query {
-        todos {
-          id,
-          title,
-          completed
+        todos (first: 2 ){
+          nodes {
+            id,
+            title,
+            completed
+          }
         }
       }
     GRAPHQL
@@ -30,7 +32,7 @@ RSpec.describe TodoApiSchema do
   end
 
   it 'return an hash that contains an array of 2 todos' do
-    expect(execute_query.to_h['data']['todos'].length).to eq 2
+    expect(execute_query.to_h['data']['todos']['nodes'].length).to eq 2
   end
 
   context 'when creating a todo' do
