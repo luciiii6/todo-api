@@ -2,12 +2,12 @@
 
 class CursorEncoder
   class << self
-    def encode(created_at)
-      Base64.strict_encode64(created_at)
+    def encode(id)
+      Base64.strict_encode64(id)
     end
 
-    def decode(created_at)
-      Base64.strict_decode64(created_at)
+    def decode(id)
+      Base64.strict_decode64(id)
     end
   end
 end
