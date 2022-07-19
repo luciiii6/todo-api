@@ -23,7 +23,11 @@ class TodoPager
 
     def get_data(page_details)
       id = id(page_details)
-      get_todos(id, page_details)
+      data = get_todos(id, page_details)
+
+      raise PageParametersValidator::PageError, 'Non existent items this way' if data.empty?
+
+      data
     end
 
     def get_metadata(todos, _page_details)
