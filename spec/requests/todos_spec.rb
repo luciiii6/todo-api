@@ -252,17 +252,9 @@ RSpec.describe 'Todos', type: :request do
         }
       end
       let(:params) do
-        h = {
-          todo: {
-            title: 'test'
-          }
-        }
-
-        h[h.keys.first].to_xml(root: h.keys.first)
+        { title: 'test' }.to_xml(root: :todo)
       end
-      let(:type) do
-        :xml
-      end
+      let(:type) { :xml }
 
       it 'responds the same as the accept type (xml)' do
         post_todos
@@ -283,17 +275,9 @@ RSpec.describe 'Todos', type: :request do
         }
       end
       let(:params) do
-        h = {
-          todo: {
-            title: 'test'
-          }
-        }
-
-        h[h.keys.first].to_xml(root: h.keys.first)
+        { title: 'test' }.to_xml(root: :todo)
       end
-      let(:type) do
-        :xml
-      end
+      let(:type) { :xml }
 
       it 'responds the same as the accept type (json)' do
         post_todos
@@ -314,17 +298,9 @@ RSpec.describe 'Todos', type: :request do
         }
       end
       let(:params) do
-        h = {
-          todo: {
-            title: 'test'
-          }
-        }
-
-        h[h.keys.first].to_xml(root: h.keys.first)
+        { title: 'test' }.to_xml(root: :todo)
       end
-      let(:type) do
-        :xml
-      end
+      let(:type) { :xml }
 
       it 'responds with json as default' do
         post_todos
