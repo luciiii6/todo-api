@@ -60,8 +60,7 @@ class TodoPager
     def get_todos_for_after(id, page_details)
       comparator = page_details['direction'] == 'DESC' ? '<' : '>'
 
-      Todo.sorted_by(page_details['sort_by'],
-                     page_details['direct'])
+      Todo.sorted_by(page_details['sort_by'], page_details['direct'])
           .where("#{page_details['sort_by']} #{comparator} ?",
                  Todo.sorted_by(page_details['sort_by']).find(id).attributes[page_details['sort_by']])
           .first(page_details['size'].to_i)
@@ -70,8 +69,7 @@ class TodoPager
     def get_todos_for_before(id, page_details)
       comparator = page_details['direction'] == 'ASC' ? '<' : '>'
 
-      Todo.sorted_by(page_details['sort_by'],
-                     page_details['direct'])
+      Todo.sorted_by(page_details['sort_by'], page_details['direct'])
           .where("#{page_details['sort_by']} #{comparator} ?",
                  Todo.sorted_by(page_details['sort_by']).find(id).attributes[page_details['sort_by']])
           .first(page_details['size'].to_i)
