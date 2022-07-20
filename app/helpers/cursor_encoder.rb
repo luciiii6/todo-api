@@ -8,6 +8,8 @@ class CursorEncoder
 
     def decode(id)
       Base64.strict_decode64(id)
+    rescue ArgumentError
+      raise ActiveRecord::RecordNotFound
     end
   end
 end

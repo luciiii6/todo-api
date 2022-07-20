@@ -18,6 +18,8 @@ class TodosController < ApplicationController
 
     data = TodoPager.get_page(params[:page])
     render json: data, status: :ok
+  rescue ActiveRecord::RecordNotFound
+    render json: { errors: "Couldn't find item for that cursor" }, status: 404
   rescue PageParametersValidator::PageError => e
     render json: { errors: e.message }, status: 400
   end
