@@ -7,7 +7,8 @@ class TodoPager
     def get_page(page_details)
       return { todos: Todo.all.collect { |todo| TodoPresenter.new(todo).to_h }, metadata: {} } unless page_details
 
-      page_details['size'] = DEFAULT_SIZE unless page_details.key?('size')
+      default_page_settings(page_details)
+
       if PageParametersValidator.valid?(page_details)
         data = get_data(page_details)
         metadata = get_metadata(data, page_details)
@@ -56,16 +57,38 @@ class TodoPager
       false
     end
 
+    def get_todos_for_after(id, page_details)
+      comparator = page_details['direction'] == 'DESC' ? '<' : '>'
+
+      Todo.sorted_by(page_details['sort_by'],
+                     page_details['direct'])
+          .where("#{page_details['sort_by']} #{comparator} ?",
+                 Todo.sorted_by(page_details['sort_by']).find(id).attributes[page_details['sort_by']])
+          .first(page_details['size'].to_i)
+    end
+
+    def get_todos_for_before(id, page_details)
+      comparator = page_details['direction'] == 'ASC' ? '<' : '>'
+
+      Todo.sorted_by(page_details['sort_by'],
+                     page_details['direct'])
+          .where("#{page_details['sort_by']} #{comparator} ?",
+                 Todo.sorted_by(page_details['sort_by']).find(id).attributes[page_details['sort_by']])
+          .first(page_details['size'].to_i)
+    end
+
     def get_todos(id, page_details)
-      return Todo.limit(page_details['size']) unless id
+      return Todo.sorted_by(page_details['sort_by'], page_details['direction']).limit(page_details['size']) unless id
 
-      if page_details.key?('after')
-        return Todo.where('created_at < ?',
-                          Todo.find(id).created_at).first(page_details['size'].to_i)
-      end
+      return get_todos_for_after(id, page_details) if page_details.key?('after')
 
-      Todo.where('created_at > ?',
-                 Todo.find(id).created_at).last(page_details['size'].to_i)
+      get_todos_for_before(id, page_details)
+    end
+
+    def default_page_settings(page_details)
+      page_details['size'] = DEFAULT_SIZE unless page_details.key?('size')
+      page_details['direction'] = 'DESC' unless page_details.key?('direction')
+      page_details['sort_by'] = 'created_at' unless page_details.key?('sort_by')
     end
   end
 end
