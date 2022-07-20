@@ -46,7 +46,7 @@ RSpec.describe 'Todos', type: :request do
       expect(response).to have_http_status(:ok)
     end
 
-    it 'returns 2 todos' do
+    it 'returns 5 todos' do
       get_todos
       expect(JSON.parse(response.body, symbolize_names: true)[:todos].length).to eq 25
     end
@@ -89,7 +89,7 @@ RSpec.describe 'Todos', type: :request do
     context 'when requesting with wrong pagination parameters' do
       let(:params) { { page: { size: 20, after: 'dsad', before: ' dasd' } } }
 
-      it 'respond with error' do
+      it 'responds with error' do
         get_todos
         expect(JSON.parse(response.body)['errors']).to eq "Can't have before and after in the same request"
       end
@@ -116,20 +116,20 @@ RSpec.describe 'Todos', type: :request do
     end
 
     context 'when requesting with after: cursor of the first todo' do
-      let(:first_todo) { CursorEncoder.encode(Todo.all.order(:created_at).first.id.to_s) }
+      let(:first_todo) { CursorEncoder.encode(Todo.sorted_by('created_at').first.id.to_s) }
       let(:params) { { page: { size: 3, after: first_todo } } }
 
-      it 'respond with previous page as true' do
+      it 'responds with previous page as true' do
         get_todos
         expect(JSON.parse(response.body)['metadata']['hasPreviousPage']).to be true
       end
     end
 
     context 'when requesting with before: cursor of the first todo' do
-      let(:first_todo) { CursorEncoder.encode(Todo.all.order(:created_at).first.id.to_s) }
+      let(:first_todo) { CursorEncoder.encode(Todo.sorted_by('created_at').first.id.to_s) }
       let(:params) { { page: { size: 3, before: first_todo } } }
 
-      it 'respond with errors that says there are no items that way' do
+      it 'responds with errors that says there are no items that way' do
         get_todos
         expect(JSON.parse(response.body)['errors']).to eq 'Non existent items this way'
       end
@@ -143,14 +143,54 @@ RSpec.describe 'Todos', type: :request do
     context 'when requesting with random Base64 cursor' do
       let(:params) { { page: { size: 3, after: 'MjEzMjE0MjE=' } } }
 
-      it "respond with error that he couldn't find the item" do
+      it "responds with error that he couldn't find the item" do
         get_todos
         expect(JSON.parse(response.body)['errors']).to eq "Couldn't find item for that cursor"
       end
 
-      it 'respond with errors error' do
+      it 'responds with errors error' do
         get_todos
         expect(response).to have_http_status :not_found
+      end
+    end
+
+    context 'when requesting with sort_by url' do
+      let(:first_todo) { CursorEncoder.encode(Todo.sorted_by('url').first.id.to_s) }
+      let(:params) { { page: { size: 3, after: first_todo, sort_by: 'url' } } }
+
+      it 'responds with 3 todos' do
+        get_todos
+        expect(JSON.parse(response.body)['todos'].length).to eq 3
+      end
+    end
+
+    context 'when requesting with sort_by id' do
+      let(:first_todo) { CursorEncoder.encode(Todo.sorted_by('id').first.id.to_s) }
+      let(:params) { { page: { size: 3, after: first_todo, sort_by: 'id' } } }
+
+      it 'responds with 3 todos' do
+        get_todos
+        expect(JSON.parse(response.body)['todos'].length).to eq 3
+      end
+    end
+
+    context 'when requesting with sort_by random word' do
+      let(:first_todo) { CursorEncoder.encode(Todo.sorted_by('id').first.id.to_s) }
+      let(:params) { { page: { size: 3, after: first_todo, sort_by: 'dasdsasad' } } }
+
+      it 'returns status 400' do
+        get_todos
+        expect(response).to have_http_status :bad_request
+      end
+    end
+
+    context 'when requesting with sort_by id and ascending order' do
+      let(:first_todo) { CursorEncoder.encode(Todo.sorted_by('id', 'ASC').first.id.to_s) }
+      let(:params) { { page: { size: 3, after: first_todo, sort_by: 'id', direction: 'ASC' } } }
+
+      it 'returns with 3 todos' do
+        get_todos
+        expect(JSON.parse(response.body)['todos'].length).to eq 3
       end
     end
   end
