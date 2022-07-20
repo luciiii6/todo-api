@@ -124,6 +124,35 @@ RSpec.describe 'Todos', type: :request do
         expect(JSON.parse(response.body)['metadata']['hasPreviousPage']).to be true
       end
     end
+
+    context 'when requesting with before: cursor of the first todo' do
+      let(:first_todo) { CursorEncoder.encode(Todo.all.order(:created_at).first.id.to_s) }
+      let(:params) { { page: { size: 3, before: first_todo } } }
+
+      it 'respond with errors that says there are no items that way' do
+        get_todos
+        expect(JSON.parse(response.body)['errors']).to eq 'Non existent items this way'
+      end
+
+      it 'responds with status code' do
+        get_todos
+        expect(response).to have_http_status :bad_request
+      end
+    end
+
+    context 'when requesting with random Base64 cursor' do
+      let(:params) { { page: { size: 3, after: 'MjEzMjE0MjE=' } } }
+
+      it "respond with error that he couldn't find the item" do
+        get_todos
+        expect(JSON.parse(response.body)['errors']).to eq "Couldn't find item for that cursor"
+      end
+
+      it 'respond with errors error' do
+        get_todos
+        expect(response).to have_http_status :not_found
+      end
+    end
   end
 
   describe 'POST /create' do
