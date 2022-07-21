@@ -11,7 +11,7 @@ class TodoPager
 
       if PageParametersValidator.valid?(page_details)
         data = get_data(page_details)
-        metadata = get_metadata(data, page_details)
+        metadata = get_metadata(data)
       end
 
       {
@@ -31,7 +31,7 @@ class TodoPager
       data
     end
 
-    def get_metadata(todos, _page_details)
+    def get_metadata(todos)
       {
         firstCursor: CursorEncoder.encode(todos[0].id.to_s),
         lastCursor: CursorEncoder.encode(todos[-1].id.to_s),
@@ -67,7 +67,7 @@ class TodoPager
     end
 
     def get_todos_for_before(id, page_details)
-      comparator = page_details['direction'] == 'ASC' ? '<' : '>'
+      comparator = page_details['direction'] == 'DESC' ? '>' : '<'
 
       Todo.sorted_by(page_details['sort_by'], page_details['direct'])
           .where("#{page_details['sort_by']} #{comparator} ?",
