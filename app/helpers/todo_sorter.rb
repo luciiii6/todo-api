@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class TodoSorter
-  attr_reader :data
-
   class << self
     def create(id, page_details)
       TodoSorter.new(id, page_details['sort_by'],
