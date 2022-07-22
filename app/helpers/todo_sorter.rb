@@ -21,7 +21,7 @@ class TodoSorter
     return @data = Todo.sorted_by(@attribute, @direction).limit(@size) unless @id
 
     @data = Todo.sorted_by(@attribute, @direction)
-                .where(" \"#{@attribute}\" #{@comparator} ?",
+                .where("\"#{@attribute}\" #{@comparator} ?",
                        Todo.find(@id).attributes[@attribute])
                 .first(@size)
   end
