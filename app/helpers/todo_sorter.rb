@@ -20,12 +20,12 @@ class TodoSorter
   end
 
   def todos
-    return @data = Todo.sorted_by(@attribute, @direction).limit(@size.to_i) unless @id
+    return @data = Todo.sorted_by(@attribute, @direction).limit(@size) unless @id
 
     @data = Todo.sorted_by(@attribute, @direction)
                 .where("#{@attribute} #{@comparator} ?",
-                       Todo.sorted_by(@attribute).find(@id.to_i).attributes[@attribute])
-                .first(@size.to_i)
+                       Todo.sorted_by(@attribute).find(@id).attributes[@attribute])
+                .first(@size)
   end
 
   def next_page?
@@ -57,7 +57,7 @@ class TodoSorter
   def initialize(id, attribute, size, direction, comparator)
     @id = id
     @attribute = attribute
-    @size = size
+    @size = size.to_i
     @direction = direction
     @comparator = comparator
   end
