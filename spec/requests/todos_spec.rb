@@ -91,7 +91,7 @@ RSpec.describe 'Todos', type: :request do
 
       it 'responds with error' do
         get_todos
-        expect(JSON.parse(response.body)['errors']).to eq "Can't have before and after in the same request"
+        expect(JSON.parse(response.body)['errors']).to eq 'Invalid page parameters'
       end
     end
 
