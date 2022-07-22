@@ -46,7 +46,7 @@ RSpec.describe 'Todos', type: :request do
       expect(response).to have_http_status(:ok)
     end
 
-    it 'returns 5 todos' do
+    it 'returns 25 todos' do
       get_todos
       expect(JSON.parse(response.body, symbolize_names: true)[:todos].length).to eq 25
     end
