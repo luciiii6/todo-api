@@ -21,14 +21,14 @@ class TodoSorter
     return @data = Todo.sorted_by(@attribute, @direction).limit(@size) unless @id
 
     @data = Todo.sorted_by(@attribute, @direction)
-                .where("#{@attribute} #{@comparator} ?",
-                       Todo.sorted_by(@attribute).find(@id).attributes[@attribute])
+                .where(" \"#{@attribute}\" #{@comparator} ?",
+                       Todo.find(@id).attributes[@attribute])
                 .first(@size)
   end
 
   def next_page?
     return true if Todo.sorted_by(@attribute, @direction)
-                       .where("#{@attribute} #{@comparator} ?", @data[-1].attributes[@attribute])
+                       .where("\"#{@attribute}\" #{@comparator} ?", @data[-1].attributes[@attribute])
                        .first
 
     false
@@ -36,7 +36,7 @@ class TodoSorter
 
   def previous_page?
     return true if Todo.sorted_by(@attribute, @direction)
-                       .where("#{@attribute} #{@comparator} ?", @data[0].attributes[@attribute])
+                       .where("\"#{@attribute}\" #{@comparator} ?", @data[0].attributes[@attribute])
                        .first
 
     false
