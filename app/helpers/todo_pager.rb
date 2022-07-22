@@ -10,8 +10,10 @@ class TodoPager
       default_page_settings(page_details)
 
       if PageParametersValidator.valid?(page_details)
-        data = get_data(page_details)
-        metadata = get_metadata(data)
+        id = id(page_details)
+        sorter = TodoSorter.create(id, page_details)
+        data = get_data(sorter)
+        metadata = get_metadata(sorter)
       end
 
       {
@@ -22,65 +24,26 @@ class TodoPager
 
     private
 
-    def get_data(page_details)
-      id = id(page_details)
-      data = get_todos(id, page_details)
+    def get_data(sorter)
+      data = sorter.todos
 
       raise PageParametersValidator::PageError, 'Non existent items this way' if data.empty?
 
       data
     end
 
-    def get_metadata(todos)
+    def get_metadata(sorter)
       {
-        firstCursor: CursorEncoder.encode(todos[0].id.to_s),
-        lastCursor: CursorEncoder.encode(todos[-1].id.to_s),
-        hasNextPage: next_page?(todos),
-        hasPreviousPage: previous_page?(todos)
+        firstCursor: sorter.first_cursor,
+        lastCursor: sorter.last_cursor,
+        hasNextPage: sorter.next_page?,
+        hasPreviousPage: sorter.previous_page?
       }
     end
 
     def id(page_details)
       return CursorEncoder.decode(page_details['after']) if page_details.key?('after')
       return CursorEncoder.decode(page_details['before']) if page_details.key?('before')
-    end
-
-    def next_page?(todos)
-      return true if Todo.where('created_at < ?', todos[-1][:created_at]).first
-
-      false
-    end
-
-    def previous_page?(todos)
-      return true if Todo.where('created_at > ?', todos[0][:created_at]).last
-
-      false
-    end
-
-    def get_todos_for_after(id, page_details)
-      comparator = page_details['direction'] == 'DESC' ? '<' : '>'
-
-      Todo.sorted_by(page_details['sort_by'], page_details['direct'])
-          .where("#{page_details['sort_by']} #{comparator} ?",
-                 Todo.sorted_by(page_details['sort_by']).find(id).attributes[page_details['sort_by']])
-          .first(page_details['size'].to_i)
-    end
-
-    def get_todos_for_before(id, page_details)
-      comparator = page_details['direction'] == 'DESC' ? '>' : '<'
-
-      Todo.sorted_by(page_details['sort_by'], page_details['direct'])
-          .where("#{page_details['sort_by']} #{comparator} ?",
-                 Todo.sorted_by(page_details['sort_by']).find(id).attributes[page_details['sort_by']])
-          .first(page_details['size'].to_i)
-    end
-
-    def get_todos(id, page_details)
-      return Todo.sorted_by(page_details['sort_by'], page_details['direction']).limit(page_details['size']) unless id
-
-      return get_todos_for_after(id, page_details) if page_details.key?('after')
-
-      get_todos_for_before(id, page_details)
     end
 
     def default_page_settings(page_details)
